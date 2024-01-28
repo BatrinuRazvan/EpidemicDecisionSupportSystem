@@ -1,5 +1,3 @@
-# data_retrieval.py
-import mysql.connector
 from backend import helperfunctions
 
 

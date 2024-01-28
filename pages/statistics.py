@@ -17,8 +17,6 @@ layout = html.Div([
         html.Button('Clear All', id='btn-clear-all', n_clicks=0),
     ]),
 ])
-
-# Initialize an empty list to store selected areas
 selected_areas = []
 
 @callback(Output('dynamic-statistics', 'figure'),
@@ -36,25 +34,21 @@ def update_statistics_graph(n_clicks_dead, n_clicks_cured, n_clicks_sick, n_clic
     button_id = ctx.triggered_id.split('.')[0]
 
     if button_id == 'btn-clear-all':
-        # Clear all selected areas and show the original graph
         selected_areas.clear()
         df = helperfunctions.fetch_data()
         if df is None or df.empty:
             print("No data retrieved from the database.")
-            return go.Figure()  # Return an empty figure if no data is retrieved
+            return go.Figure()
     else:
-        # Add the selected area to the list
         selected_area = button_id.replace('btn-', '').upper()
         if selected_area not in selected_areas:
             selected_areas.append(selected_area)
 
-        # Fetch data and create graph based on selected areas
         df = helperfunctions.fetch_data()
         if df is None or df.empty:
             print("No data retrieved from the database.")
-            return go.Figure()  # Return an empty figure if no data is retrieved
+            return go.Figure()
 
-        # Select only the columns that are in the selected_areas list
         selected_df = df[['DAY_ID'] + selected_areas]
 
     try:

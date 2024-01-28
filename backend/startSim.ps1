@@ -1,1 +1,1 @@
-python "D:\Licenta\EDSS\EpidemicDecisionalSupportSystem\backend\sim.py"
+python "E:\Programming Projects\Python\EpidemicDecisionSupportSystem\backend\sim.py"

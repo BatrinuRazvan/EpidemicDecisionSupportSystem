@@ -20,11 +20,11 @@ def fetch_data():
         conn = get_db_connection()
         query = "SELECT DAY_ID, TOTAL, CURED, DEAD, SICK FROM status"
         df = pd.read_sql(query, conn)
-        data_list = df.to_dict('records')  # Convert DataFrame to list of dicts
+        data_list = df.to_dict('records')
         print("Data fetched successfully:")
-        print(data_list)  # Print the entire list
+        print(data_list)
         conn.close()
         return df
     except Exception as e:
         print(f"Error fetching data: {e}")
-        return pd.DataFrame()  # Return an empty DataFrame in case of an error
+        return pd.DataFrame()
