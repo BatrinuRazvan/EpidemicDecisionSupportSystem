@@ -1,32 +1,9 @@
 import dash
 from dash import html, dcc, Output, Input, callback
 import plotly.express as px
-import mysql.connector
-import pandas as pd
 import subprocess
 from dash.exceptions import PreventUpdate
 from backend import helperfunctions
-
-def fetch_data():
-    try:
-        # db_config = {
-        #     'host': 'localhost',
-        #     'user': 'root',
-        #     'password': '1234',
-        #     'database': 'edss'
-        # }
-        # conn = mysql.connector.connect(**db_config)
-        conn = helperfunctions.get_db_connection()
-        query = "SELECT DAY_ID, TOTAL, CURED, DEAD, SICK FROM status"
-        df = pd.read_sql(query, conn)
-        data_list = df.to_dict('records')  # Convert DataFrame to list of dicts
-        print("Data fetched successfully:")
-        print(data_list)  # Print the entire list
-        conn.close()
-        return df
-    except Exception as e:
-        print(f"Error fetching data: {e}")
-        return pd.DataFrame()  # Return an empty DataFrame in case of an error
 
 
 layout = html.Div([
@@ -42,7 +19,7 @@ layout = html.Div([
 
 
 def update_graph(n):
-    df = fetch_data()
+    df = helperfunctions.fetch_data()
     if df.empty:
         print("No data retrieved from the database.")
         return px.area()  # Return an empty graph if no data is retrieved
