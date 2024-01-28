@@ -8,7 +8,41 @@ Document formated using VSCode default document formatting.
 
 from math import floor
 from random import randint
+import json
 
+
+# -----------------------JSON CONFIG-------------------------------
+def load_variables_from_json(json_path):
+    try:
+        with open(json_path, 'r') as json_file:
+            json_data = json.load(json_file)
+
+            global nb_of_people, number_of_months, number_of_days, start_sick, sleepTime, average_time_of_encounters
+            global hard_encounters, max_chances_going_outside, time_incubating, time_before_infectious
+            global max_infectuosity, max_lethality, days_before_possible_healing, healing_chances
+            global immunity_bounds, immunity_random_increase, immunity_ri_start, immunity_modifier
+
+            nb_of_people = json_data.get('nb_of_people', nb_of_people)
+            number_of_months = json_data.get('number_of_months', number_of_months)
+            number_of_days = json_data.get('number_of_days', number_of_days)
+            start_sick = json_data.get('start_sick', start_sick)
+            sleepTime = json_data.get('sleepTime', sleepTime)
+            average_time_of_encounters = json_data.get('average_time_of_encounters', average_time_of_encounters)
+            hard_encounters = json_data.get('hard_encounters', hard_encounters)
+            max_chances_going_outside = json_data.get('max_chances_going_outside', max_chances_going_outside)
+            time_incubating = json_data.get('time_incubating', time_incubating)
+            time_before_infectious = json_data.get('time_before_infectious', time_before_infectious)
+            max_infectuosity = json_data.get('max_infectuosity', max_infectuosity)
+            max_lethality = json_data.get('max_lethality', max_lethality)
+            days_before_possible_healing = json_data.get('days_before_possible_healing', days_before_possible_healing)
+            healing_chances = json_data.get('healing_chances', healing_chances)
+            immunity_bounds = json_data.get('immunity_bounds', immunity_bounds)
+            immunity_random_increase = json_data.get('immunity_random_increase', immunity_random_increase)
+            immunity_ri_start = json_data.get('immunity_ri_start', immunity_ri_start)
+            immunity_modifier = json_data.get('immunity_modifier', immunity_modifier)
+
+    except Exception as e:
+        print(f"Error loading variables from JSON: {e}")
 # --------------------------- VARIABLES TO CHANGE ------------------------------------
 
 print_console = True
@@ -65,7 +99,9 @@ immunity_ri_start = 20
 # Else, look at immunity_random_increase description
 immunity_modifier = 50
 
-
+# ----------------------------LOAD JSON-------------------------------------
+json_file_path = 'path/to/your/parameters.json'
+load_variables_from_json(json_file_path)
 # --------------------------- DO NOT CHANGE ------------------------------------
 
 
