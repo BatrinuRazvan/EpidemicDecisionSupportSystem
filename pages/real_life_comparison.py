@@ -6,13 +6,6 @@ import pandas as pd
 
 def fetch_data():
     try:
-        # db_config = {
-        #     'host': 'localhost',
-        #     'user': 'root',
-        #     'password': '1234',
-        #     'database': 'edss'
-        # } # Put this in a separate file to reuse everywhere implementing DRY
-        # conn = mysql.connector.connect(**db_config)
         conn = helperfunctions.get_db_connection()
         query = "SELECT data, cazuri, decese FROM covid19_tm"
         df = pd.read_sql(query, conn)
