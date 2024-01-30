@@ -7,7 +7,7 @@ import pandas as pd
 def fetch_data():
     try:
         conn = helperfunctions.get_db_connection()
-        query = "SELECT data, cazuri, decese FROM covid19_tm"
+        query = "SELECT DATE_ID, cazuri, decese FROM covid19_tm"
         df = pd.read_sql(query, conn)
         data_list = df.to_dict('records')  # Convert DataFrame to list of dicts
         print("Data fetched successfully:")
@@ -36,7 +36,7 @@ def update_graph(n):
         return px.area()  # Return an empty graph if no data is retrieved
 
     try:
-        fig = px.area(df, x='data', y=['cazuri', 'decese'],
+        fig = px.area(df, x='DATE_ID', y=['cazuri', 'decese'],
                       color_discrete_map={'cazuri': 'red', 'decese': 'gray'})
         return fig
     except Exception as e:
