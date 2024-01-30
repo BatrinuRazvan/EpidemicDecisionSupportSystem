@@ -1,3 +1,6 @@
 /.env
 /individualActions.log
 /parameters.json
+/datacollection/data_download_file_reference_2020.csv
+/datacollection/data_download_file_reference_2021.csv
+/datacollection/data_download_file_reference_2022.csv
