@@ -35,7 +35,7 @@ def fetch_data_for_table(selected_table):
         conn = get_db_connection()
 
         if selected_table == 'covid19_tm':
-            query = "SELECT DATE_ID, DECESE, CAZURI FROM covid19_tm"
+            query = "SELECT * FROM covid19_tm"
         elif selected_table == 'status':
             query = "SELECT DATE_ID, TOTAL, CURED, DEAD, SICK FROM status"
         elif selected_table == 'covid_global':
