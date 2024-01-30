@@ -30,13 +30,11 @@ def load_variables_from_json(json_path):
             average_time_of_encounters = json_data.get('average_time_of_encounters', average_time_of_encounters)
             hard_encounters = json_data.get('hard_encounters', hard_encounters)
             max_chances_going_outside = json_data.get('max_chances_going_outside', max_chances_going_outside)
-            time_incubating = json_data.get('time_incubating', time_incubating)
             time_before_infectious = json_data.get('time_before_infectious', time_before_infectious)
             max_infectuosity = json_data.get('max_infectuosity', max_infectuosity)
             max_lethality = json_data.get('max_lethality', max_lethality)
             days_before_possible_healing = json_data.get('days_before_possible_healing', days_before_possible_healing)
             healing_chances = json_data.get('healing_chances', healing_chances)
-            immunity_bounds = json_data.get('immunity_bounds', immunity_bounds)
             immunity_random_increase = json_data.get('immunity_random_increase', immunity_random_increase)
             immunity_ri_start = json_data.get('immunity_ri_start', immunity_ri_start)
             immunity_modifier = json_data.get('immunity_modifier', immunity_modifier)
@@ -100,7 +98,7 @@ immunity_ri_start = 20
 immunity_modifier = 50
 
 # ----------------------------LOAD JSON-------------------------------------
-json_file_path = 'path/to/your/parameters.json'
+json_file_path = 'D:\\Licenta\\EDSS\\EpidemicDecisionalSupportSystem\\parameters.json'
 load_variables_from_json(json_file_path)
 # --------------------------- DO NOT CHANGE ------------------------------------
 
