@@ -17,7 +17,7 @@ def json_to_sql_insert(file_path):
             cazuri_value = data_dict.get("cazuri", 0)
             decese_value = data_dict.get("decese", 0)
 
-            sql_query = f"INSERT INTO COVID19_TM (data, cazuri, decese) VALUES ('{data_value}', {cazuri_value}, {decese_value});"
+            sql_query = f"INSERT INTO COVID19_TM (DATE_ID, CAZURI, DECESE) VALUES ('{data_value}', {cazuri_value}, {decese_value});"
             queries.append(sql_query)
 
         queries.reverse()
@@ -31,13 +31,6 @@ def json_to_sql_insert(file_path):
 
 def execute_queries(file_path):
     try:
-        # Connect to the MySQL database
-        # conn = mysql.connector.connect(
-        #     host='localhost',       # replace with your host, e.g., 'localhost'
-        #     database='edss', # replace with your database name
-        #     user='root',     # replace with your username
-        #     password='1234'  # replace with your password
-        # )
         conn = helperfunctions.get_db_connection()
         cursor = conn.cursor()
 

@@ -39,13 +39,13 @@ layout = html.Div([
 
 @callback(Output('real-time-graph', 'figure'), [Input('interval-component', 'n_intervals')])
 def update_graph(n):
-    df = helperfunctions.fetch_data()
+    df = helperfunctions.fetch_data_for_simulation()
     if df.empty:
         print("No data retrieved from the database.")
         return px.area()
 
     try:
-        fig = px.area(df, x='DAY_ID', y=['DEAD', 'CURED', 'SICK', 'TOTAL'],
+        fig = px.area(df, x='DATE_ID', y=['DEAD', 'CURED', 'SICK', 'TOTAL'],
                       color_discrete_map={'TOTAL': 'aquamarine', 'CURED': 'green', 'DEAD': 'gray', 'SICK': 'red'})
         return fig
     except Exception as e:

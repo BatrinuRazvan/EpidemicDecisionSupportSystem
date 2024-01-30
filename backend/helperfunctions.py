@@ -15,10 +15,10 @@ def get_db_connection():
         database=dbDatabase
     )
 
-def fetch_data():
+def fetch_data_for_simulation():
     try:
         conn = get_db_connection()
-        query = "SELECT DAY_ID, TOTAL, CURED, DEAD, SICK FROM status"
+        query = "SELECT DATE_ID, TOTAL, CURED, DEAD, SICK FROM status"
         df = pd.read_sql(query, conn)
         data_list = df.to_dict('records')
         print("Data fetched successfully:")
@@ -27,4 +27,32 @@ def fetch_data():
         return df
     except Exception as e:
         print(f"Error fetching data: {e}")
+        return pd.DataFrame()
+
+
+def fetch_data_for_table(selected_table):
+    try:
+        conn = get_db_connection()
+
+        if selected_table == 'covid19_tm':
+            query = "SELECT DATE_ID, DECESE, CAZURI FROM covid19_tm"
+        elif selected_table == 'status':
+            query = "SELECT DATE_ID, TOTAL, CURED, DEAD, SICK FROM status"
+        elif selected_table == 'covid_global':
+            query = "SELECT * FROM covid_global"
+        elif selected_table == 'covid_romania':
+            query = "SELECT * FROM covid_romania"
+        else:
+            # Add more tables as needed
+            print(f"Invalid table name: {selected_table}")
+            return pd.DataFrame()
+
+        df = pd.read_sql(query, conn)
+        data_list = df.to_dict('records')
+        print("Data fetched successfully:")
+        print(data_list)
+        conn.close()
+        return df
+    except Exception as e:
+        print(f"Error fetching data for table {selected_table}: {e}")
         return pd.DataFrame()

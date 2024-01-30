@@ -386,7 +386,7 @@ class People(object):
                 logText("at %s, %s is staying at home for now." %
                         (self.time, person.name), "info")
 
-    def dailyCounter(self):
+    def dailyCounter(self, counter):
         """What is done "daily", as in each 24 hours."""
         global temp_time
         if (self.env.now % (24) == 0):
@@ -403,16 +403,19 @@ class People(object):
             sick = self.nb_sick
 
             # Call the function from data_retrieval.py to store the data
-            store_status_values(healthy_people, immune, deaths, sick)
+            store_status_values(healthy_people, immune, deaths, sick, counter)
 
     # ------------------------ MAIN ---------------------------------
 
     def run(self):
+        counter = 0
         """Main function of the class."""
         while True:
             self.time = timedelta(hours=self.env.now)
 
-            self.dailyCounter()
+            self.dailyCounter(counter)
+            if (self.env.now % (24) == 0):
+                counter += 1
 
             # If nobody is sick anymore, the disease has been eradicated
             if (self.nb_sick <= 0):
@@ -421,7 +424,9 @@ class People(object):
                         (self.time), "warn")
                 while True:
                     self.time = timedelta(hours=self.env.now)
-                    self.dailyCounter()
+                    if (self.env.now % (24) == 0):
+                        counter += 1
+                    self.dailyCounter(counter)
                     # Advance the time of the simulation by one hour
                     yield self.env.timeout(1)
 
