@@ -13,7 +13,7 @@ layout = html.Div([
     dcc.Dropdown(
         id='table-dropdown-1',
         options=[
-            {'label': table, 'value': table} for table in ['covid_global', 'covid_romania', 'covid19_tm']
+            {'label': table, 'value': table} for table in ['covid_global', 'covid_romania', 'covid19_tm', 'simulation']
         ],
         value='table1',
         style={'width': '50%'}
@@ -35,7 +35,7 @@ layout = html.Div([
     dcc.Dropdown(
         id='table-dropdown-2',
         options=[
-            {'label': table, 'value': table} for table in ['covid19_tm', 'status', 'covid_romania']
+            {'label': table, 'value': table} for table in ['covid19_tm', 'status', 'covid_romania', 'simulation']
         ],
         value='table2',
         style={'width': '50%'}

@@ -1,7 +1,7 @@
 import dash
 from dash import html, dcc, Output, Input, callback
 import plotly.express as px
-import subprocess
+import requests
 import json
 from dash.exceptions import PreventUpdate
 from backend import helperfunctions
@@ -31,7 +31,12 @@ layout = html.Div([
     html.H1('Simulation'),
     dcc.Graph(id='real-time-graph'),
     dcc.Interval(id='interval-component', interval=1*1000, n_intervals=0),
-    html.Button('Start Simulation', id='ps-button', n_clicks=0),
+    html.Div([
+        html.Button('Start Simulation', id='start-simulation-button', n_clicks=0),
+        html.Button('Pause Simulation', id='pause-simulation-button', n_clicks=0),
+        html.Button('Resume Simulation', id='resume-simulation-button', n_clicks=0),
+        html.Button('Reset Simulation', id='reset-simulation-button', n_clicks=0),
+    ]),
     html.Div(id='dummy-output', style={'display': 'none'}),
     html.Div( input_elements, id='changable-parameters'),
 ])
@@ -45,8 +50,8 @@ def update_graph(n):
         return px.area()
 
     try:
-        fig = px.area(df, x='DATE_ID', y=['DEAD', 'CURED', 'SICK', 'TOTAL'],
-                      color_discrete_map={'TOTAL': 'aquamarine', 'CURED': 'green', 'DEAD': 'gray', 'SICK': 'red'})
+        fig = px.area(df, x='DAY_INCREMENT', y=['TOTAL_DEATHS', 'TOTAL_RECOVERED', 'DAILY_CASES', 'TOTAL_HOSPITALIZATIONS'],
+                      color_discrete_map={'TOTAL_HOSPITALIZATIONS': 'aquamarine', 'TOTAL_RECOVERED': 'green', 'TOTAL_DEATHS': 'gray', 'DAILY_CASES': 'red'})
         return fig
     except Exception as e:
         print(f"Error creating graph: {e}")
@@ -55,19 +60,44 @@ def update_graph(n):
 
 @callback(
     Output('dummy-output', 'children'),
-    [Input('ps-button', 'n_clicks')]
+    [Input('start-simulation-button', 'n_clicks'),
+     Input('pause-simulation-button', 'n_clicks'),
+     Input('resume-simulation-button', 'n_clicks'),
+     Input('reset-simulation-button', 'n_clicks')]
 )
-def run_ps_script(n_clicks):
-    if n_clicks == 0:
-        raise PreventUpdate
+def control_simulation(start_clicks, pause_clicks, resume_clicks, reset_clicks):
+    # Placeholder logic for demonstration purposes
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
-    try:
-        ps_script_path = "D:\\Licenta\\EDSS\\EpidemicDecisionalSupportSystem\\backend\\startSim.ps1"
-        subprocess.run(["powershell", "-ExecutionPolicy", "Bypass", "-File", ps_script_path], check=True)
-        print("PowerShell script executed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to execute PowerShell script: {e}")
+    if 'start-simulation-button' in changed_id and start_clicks > 0:
+        try:
+            requests.post('http://localhost:8080/startSimulation')
+            print("Simulation started successfully.")
+        except requests.RequestException as e:
+            print(f"Failed to start simulation: {e}")
 
+    elif 'pause-simulation-button' in changed_id and pause_clicks > 0:
+        try:
+            requests.post('http://localhost:8080/pauseSimulation')
+            print("Simulation paused.")
+        except requests.RequestException as e:
+            print(f"Failed to start simulation: {e}")
+
+    elif 'resume-simulation-button' in changed_id and resume_clicks > 0:
+        try:
+            requests.post('http://localhost:8080/resumeSimulation')
+            print("Simulation resumed.")
+        except requests.RequestException as e:
+            print(f"Failed to start simulation: {e}")
+
+    elif 'reset-simulation-button' in changed_id and reset_clicks > 0:
+        try:
+            requests.post('http://localhost:8080/resetSimulation')
+            print("Simulation reset.")
+        except requests.RequestException as e:
+            print(f"Failed to start simulation: {e}")
+
+    # For demonstration, returning None
     return None
 
 

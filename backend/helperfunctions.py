@@ -18,7 +18,7 @@ def get_db_connection():
 def fetch_data_for_simulation():
     try:
         conn = get_db_connection()
-        query = "SELECT DATE_ID, TOTAL, CURED, DEAD, SICK FROM status"
+        query = "SELECT DAY_INCREMENT, TOTAL_HOSPITALIZATIONS, TOTAL_RECOVERED, TOTAL_DEATHS, DAILY_CASES FROM simulation"
         df = pd.read_sql(query, conn)
         data_list = df.to_dict('records')
         print("Data fetched successfully:")
@@ -42,6 +42,8 @@ def fetch_data_for_table(selected_table):
             query = "SELECT * FROM covid_global"
         elif selected_table == 'covid_romania':
             query = "SELECT * FROM covid_romania"
+        elif selected_table == 'simulation':
+            query = "SELECT * FROM simulation"
         else:
             # Add more tables as needed
             print(f"Invalid table name: {selected_table}")
