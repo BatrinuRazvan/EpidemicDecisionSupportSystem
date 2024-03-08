@@ -172,4 +172,5 @@ def update_json(nb_of_people_value, *args):
 
     return input_elements
 
+
 dash.register_page(__name__, path='/')

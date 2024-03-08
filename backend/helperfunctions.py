@@ -1,6 +1,9 @@
 import mysql.connector
 from decouple import config
 import pandas as pd
+import requests
+
+API_BASE_URL = "http://localhost:8080"
 
 
 def get_db_connection():
@@ -58,3 +61,20 @@ def fetch_data_for_table(selected_table):
     except Exception as e:
         print(f"Error fetching data for table {selected_table}: {e}")
         return pd.DataFrame()
+
+
+def post_message(city, gravity, range_km, description):
+    url = f"{API_BASE_URL}/messages"
+    data = {
+        "city": city,
+        "gravity": gravity,
+        "range_km": range_km,
+        "description": description
+    }
+    response = requests.post(url, json=data)
+    return response.json()
+
+def get_messages():
+    url = f"{API_BASE_URL}/messages"
+    response = requests.get(url)
+    return response.json()

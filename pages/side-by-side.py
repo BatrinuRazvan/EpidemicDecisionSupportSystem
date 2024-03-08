@@ -61,6 +61,8 @@ layout = html.Div([
 ])
 
 # Define callback to update column dropdown options based on selected table
+
+
 @callback(
     [Output('column-dropdown-1', 'options'),
      Output('column-dropdown-2', 'options')],
