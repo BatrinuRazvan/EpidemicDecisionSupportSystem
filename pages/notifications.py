@@ -88,7 +88,7 @@ def handle_city_selection(n_clicks, ids):
      State('circles-store', 'data')],  # Add this to read the current circles
     prevent_initial_call=True
 )
-def update_markers_on_submit(n_clicks_submit, n_clicks_refresh, selected_city, gravity, range_km, description, existing_circles):
+def update_map(n_clicks_submit, n_clicks_refresh, selected_city, gravity, range_km, description):
     if not selected_city or not gravity or not description:
         return dash.no_update, dash.no_update
 
