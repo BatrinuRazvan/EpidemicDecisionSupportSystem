@@ -82,13 +82,14 @@ def handle_city_selection(n_clicks, ids):
     [Output('marker-layer', 'children'), Output('circles-store', 'data')],
     [Input('submit-btn', 'n_clicks')],
     [State('selected-city', 'data'),
+     State('title-input', 'value'),
      State('gravity-dropdown', 'value'),
      State('range-input', 'value'),
      State('description-input', 'value'),  # New description input state
      State('circles-store', 'data')],  # Add this to read the current circles
     prevent_initial_call=True
 )
-def update_map(n_clicks_submit, n_clicks_refresh, selected_city, gravity, range_km, description):
+def update_map(n_clicks_submit, n_clicks_refresh, selected_city, title, gravity, range_km, description):
     if not selected_city or not gravity or not description:
         return dash.no_update, dash.no_update
 
@@ -102,7 +103,7 @@ def update_map(n_clicks_submit, n_clicks_refresh, selected_city, gravity, range_
 
     # If submission was made, post the data
     if n_clicks_submit:
-        post_message(selected_city, gravity, range_km, description)
+        post_message(selected_city, title, gravity, range_km, description)
 
     # Fetch messages to update circles
     messages = get_messages()

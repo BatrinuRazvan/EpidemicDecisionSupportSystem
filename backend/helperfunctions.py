@@ -63,18 +63,20 @@ def fetch_data_for_table(selected_table):
         return pd.DataFrame()
 
 
-def post_message(city, gravity, range_km, description):
-    url = f"{API_BASE_URL}/messages"
+def post_message(city, title, severity, range_km, description):
+    url = f"{API_BASE_URL}/messages/addNotification"
     data = {
         "city": city,
-        "gravity": gravity,
-        "range_km": range_km,
+        "title": title,
+        "severity": severity,
+        "rangekm": range_km,
         "description": description
     }
     response = requests.post(url, json=data)
     return response.json()
 
+
 def get_messages():
-    url = f"{API_BASE_URL}/messages"
+    url = f"{API_BASE_URL}/messages/getMessages"
     response = requests.get(url)
     return response.json()
