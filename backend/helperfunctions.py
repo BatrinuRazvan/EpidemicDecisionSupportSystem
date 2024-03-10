@@ -80,3 +80,9 @@ def get_messages():
     url = f"{API_BASE_URL}/messages/getMessages"
     response = requests.get(url)
     return response.json()
+
+
+def get_citiesAndMarkers():
+    response = requests.get(f"{API_BASE_URL}/cities/getMarkers")
+    city_markers = {marker["cityName"]: {"lat": marker["latitude"], "lon": marker["longitude"]} for marker in response.json()}
+    return city_markers
