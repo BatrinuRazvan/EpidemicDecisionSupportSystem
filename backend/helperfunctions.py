@@ -63,26 +63,25 @@ def fetch_data_for_table(selected_table):
         return pd.DataFrame()
 
 
-def post_message(city, title, severity, range_km, description):
-    url = f"{API_BASE_URL}/messages/addNotification"
+def post_message(city, title, gravity, range_km, description, color):
+    # Your existing code to post the message, modified to include 'color'
     data = {
         "city": city,
         "title": title,
-        "severity": severity,
-        "rangekm": range_km,
-        "description": description
+        "severity": gravity,  # Assuming 'gravity' is used as 'severity'
+        "range": range_km,
+        "description": description,
+        "color": color  # Include the color in the data sent to the server
     }
-    response = requests.post(url, json=data)
-    return response.json()
+    requests.post(f'{API_BASE_URL}/messages/addNotification', json=data)
 
 
 def get_messages():
-    url = f"{API_BASE_URL}/messages/getMessages"
-    response = requests.get(url)
+    response = requests.get(f'{API_BASE_URL}/messages/getMessages')
     return response.json()
 
 
 def get_citiesAndMarkers():
-    response = requests.get(f"{API_BASE_URL}/cities/getMarkers")
+    response = requests.get(f'{API_BASE_URL}/cities')
     city_markers = {marker["cityName"]: {"lat": marker["latitude"], "lon": marker["longitude"]} for marker in response.json()}
     return city_markers

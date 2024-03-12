@@ -3,26 +3,21 @@ from dash import html, dcc, callback, Input, Output, State
 import dash_leaflet as dl
 import json
 
-from backend.helperfunctions import post_message, get_messages
+from backend.helperfunctions import post_message, get_messages, get_citiesAndMarkers
 
 dash.register_page(__name__)
 
-cities = {
-    "London": {"lat": 51.5074, "lon": -0.1278},
-    "Paris": {"lat": 48.8566, "lon": 2.3522},
-    "Berlin": {"lat": 52.5200, "lon": 13.4050},
-    "Rome": {"lat": 41.9028, "lon": 12.4964}
-}
+cities = get_citiesAndMarkers()
 
 gravity_options = [
-    {'label': 'None', 'value': 'none'},
+    {'label': 'Minor', 'value': 'minor'},
     {'label': 'Moderate', 'value': 'moderate'},
     {'label': 'Bad', 'value': 'bad'},
     {'label': 'Fatal', 'value': 'fatal'}
 ]
 
 gravity_colors = {
-    'none': 'green',
+    'minor': 'green',
     'moderate': 'yellow',
     'bad': 'orange',
     'fatal': 'red'
@@ -50,11 +45,12 @@ layout = html.Div([
     dcc.Input(id='title-input', type='text', placeholder='Title', style={'margin-top': '10px'}),
     dcc.Input(id='range-input', type='number', placeholder='Range in km (10-100)', min=10, max=100, step=10, value=50, style={'margin-top': '10px'}),
     dcc.Textarea(
-        id='description-textarea',
+        id='description-input',
         placeholder='Enter a detailed description of the situation...',
         style={'width': '100%', 'height': 100, 'margin-top': '10px'},
     ),
     html.Button('Submit', id='submit-btn', n_clicks=0, style={'margin-top': '10px'}),
+    html.Button('Update Map', id='update-map-btn', n_clicks=0, style={'margin-top': '10px'}),
     html.Div(id='output-div', style={'margin-top': '20px'}),
     dcc.Store(id='circles-store'),  # Store for keeping track of circles
     dcc.Store(id='selected-city')
@@ -79,48 +75,38 @@ def handle_city_selection(n_clicks, ids):
 
 # Callback for updating the map based on the selected city, gravity, and range
 @callback(
-    [Output('marker-layer', 'children'), Output('circles-store', 'data')],
-    [Input('submit-btn', 'n_clicks')],
-    [State('selected-city', 'data'),
-     State('title-input', 'value'),
-     State('gravity-dropdown', 'value'),
-     State('range-input', 'value'),
-     State('description-input', 'value'),  # New description input state
-     State('circles-store', 'data')],  # Add this to read the current circles
+    Output('marker-layer', 'children'),
+    Input('update-map-btn', 'n_clicks'),
     prevent_initial_call=True
 )
-def update_map(n_clicks_submit, n_clicks_refresh, selected_city, title, gravity, range_km, description):
-    if not selected_city or not gravity or not description:
-        return dash.no_update, dash.no_update
+def update_map(n_clicks):
+    if n_clicks > 0:
+        markers = [
+            dl.Marker(
+                position=(info["lat"], info["lon"]),
+                children=[dl.Tooltip(city), dl.Popup(city)],
+                id={"type": "city-marker", "index": city}
+            ) for city, info in cities.items()
+        ]
 
-    markers = [
-        dl.Marker(
-            position=(info["lat"], info["lon"]),
-            children=[dl.Tooltip(city), dl.Popup(city)],
-            id={"type": "city-marker", "index": city}
-        ) for city, info in cities.items()
-    ]
+        # Fetch messages to update circles
+        messages = get_messages()
+        circles = []
+        for message in messages:
+            if message['city'] in cities:
+                city_info = cities[message['city']]
+                circle = dl.Circle(
+                    center=(city_info["lat"], city_info["lon"]),
+                    radius=message['range'] * 1000,  # Ensure 'range_km' matches the key in your message objects
+                    color=gravity_colors[message['severity']],
+                    # Ensure 'gravity' matches the key in your message objects
+                    fill=True,
+                    fillOpacity=0.5
+                )
+                circles.append(circle)
 
-    # If submission was made, post the data
-    if n_clicks_submit:
-        post_message(selected_city, title, gravity, range_km, description)
-
-    # Fetch messages to update circles
-    messages = get_messages()
-    circles = []
-    for message in messages:
-        if message['city'] in cities:
-            city_info = cities[message['city']]
-            circle = dl.Circle(
-                center=(city_info["lat"], city_info["lon"]),
-                radius=message['range_km'] * 1000,  # Assuming 'range_km' is stored in the database
-                color=gravity_colors[message['gravity']],  # Assuming 'gravity' is stored in the database
-                fill=True,
-                fillOpacity=0.5
-            )
-            circles.append(circle)
-
-    return markers + circles
+        return markers + circles
+    return dash.no_update
 
 
 @callback(
@@ -128,10 +114,15 @@ def update_map(n_clicks_submit, n_clicks_refresh, selected_city, title, gravity,
     Input('submit-btn', 'n_clicks'),
     State('title-input', 'value'),
     State('disaster-dropdown', 'value'),
+    State('description-input', 'value'),
+    State('gravity-dropdown', 'value'),
+    State('range-input', 'value'),
     State('selected-city', 'data'),
     prevent_initial_call=True
 )
-def submit_message(n_clicks, title, disaster, selected_city):
+def submit_message(n_clicks, title, disaster, description, gravity, range_km, selected_city):
     if n_clicks > 0 and selected_city:
+        color = gravity_colors.get(gravity, 'default_color')
+        post_message(selected_city, title, gravity, range_km, description, color)
         return f"Submitted: {title}, Disaster: {disaster}, City: {selected_city}"
     return "Please select a city and fill out all fields before submitting."
