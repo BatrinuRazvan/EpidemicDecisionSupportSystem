@@ -85,3 +85,7 @@ def get_citiesAndMarkers():
     response = requests.get(f'{API_BASE_URL}/cities')
     city_markers = {marker["cityName"]: {"lat": marker["latitude"], "lon": marker["longitude"]} for marker in response.json()}
     return city_markers
+
+def get_decisionResponses():
+    response = requests.get(f'{API_BASE_URL}/messages/getDecisionResponses')
+    return response.json()
