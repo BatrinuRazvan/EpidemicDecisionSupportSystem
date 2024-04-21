@@ -6,20 +6,21 @@ app = Dash(__name__, use_pages=True)
 # Define some CSS styles for the navbar
 navbar_style = {
     'display': 'flex',
-    'justify-content': 'space-around',
-    'align-items': 'center',
-    'background-color': '#007BFF',
+    'justifyContent': 'space-around',  # Updated to camelCase
+    'alignItems': 'center',  # Updated to camelCase
+    'backgroundColor': '#007BFF',  # Updated to camelCase
     'padding': '10px',
-    'font-family': 'sans-serif',
+    'fontFamily': 'sans-serif',  # Updated to camelCase
     'color': 'white'
 }
 
 link_style = {
-    'text-decoration': 'none',
+    'textDecoration': 'none',  # Updated to camelCase
     'color': 'white',
-    'font-size': '20px',
+    'fontSize': '20px',  # Updated to camelCase
     'margin': '0 15px'
 }
+
 app.layout = html.Div([
     html.H1('Epidemic Decision Support System', style={'textAlign': 'center'}),
 

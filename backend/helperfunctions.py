@@ -86,6 +86,27 @@ def get_citiesAndMarkers():
     city_markers = {marker["cityName"]: {"lat": marker["latitude"], "lon": marker["longitude"]} for marker in response.json()}
     return city_markers
 
+
 def get_decisionResponses():
     response = requests.get(f'{API_BASE_URL}/messages/getDecisionResponses')
     return response.json()
+
+
+def fetch_and_summarize_simulation_data():
+    response = requests.get(f"{API_BASE_URL}/getSimulationData")
+    if response.status_code == 200:
+        data = response.json()
+        df = pd.DataFrame(data)
+        # Sample or summarize your data here. As an example, we'll randomly select 100 entries if the data is large.
+        if len(df) > 100:
+            df_sampled = df.sample(n=100)
+        else:
+            df_sampled = df
+        return df_sampled.to_json(orient='split')
+    else:
+        print(f"Failed to fetch simulation data: {response.status_code}")
+        return None
+
+
+def getOpenApiKey():
+    return config('OPENAPIKEY')

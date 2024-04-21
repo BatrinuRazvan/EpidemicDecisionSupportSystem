@@ -5,6 +5,7 @@ import requests
 import json
 from dash.exceptions import PreventUpdate
 from backend import helperfunctions
+import openai
 
 dash.register_page(__name__)
 
@@ -39,6 +40,8 @@ layout = html.Div([
     ]),
     html.Div(id='dummy-output', style={'display': 'none'}),
     html.Div( input_elements, id='changable-parameters'),
+    html.Button('Analyze Simulation', id='analyze-simulation-button', n_clicks=0),
+    html.Div(id='analysis-output'),
 ])
 
 
@@ -171,6 +174,49 @@ def update_json(nb_of_people_value, *args):
             ]
 
     return input_elements
+
+
+@callback(
+    Output('analysis-output', 'children'),
+    Input('analyze-simulation-button', 'n_clicks')
+)
+def analyze_simulation(n_clicks):
+    if n_clicks > 0:
+        summarized_data = helperfunctions.fetch_and_summarize_simulation_data()
+        print(summarized_data)
+        if summarized_data:
+            try:
+                # Initialize the OpenAI client with the API key retrieved at runtime
+                api_key = helperfunctions.getOpenApiKey()
+                client = openai.OpenAI(api_key=api_key)
+
+                chat_completion = client.chat.completions.create(
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": f"Analyze this summarized simulation data: {summarized_data}. "
+                                       f"Using your data, what epidemic/ pandemic does this data resemble?",
+                        }
+                    ],
+                    model="gpt-3.5-turbo",
+                )
+
+                # Assuming the response structure allows direct access to 'choices' as attributes
+                try:
+                    # Accessing the first choice's content directly via attributes
+                    analysis = chat_completion.choices[0].message.content
+                except AttributeError:
+                    print("Failed to extract analysis from the response.")
+                    analysis = "Analysis could not be performed."
+
+                return analysis
+            except Exception as e:
+                print(f"Error during OpenAI chat completion request: {e}")
+                return "An error occurred during analysis."
+        else:
+            return "No data available for analysis."
+    else:
+        raise PreventUpdate
 
 
 dash.register_page(__name__, path='/')
