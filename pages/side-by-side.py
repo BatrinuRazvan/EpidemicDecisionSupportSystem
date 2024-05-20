@@ -1,67 +1,72 @@
-# side_by_side.py
-
+from dash.dependencies import Input, Output
 import dash
 from dash import dcc, html, callback
-from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 from backend import helperfunctions
+from dash.exceptions import PreventUpdate
+from constants import TABLE_OPTIONS, BY_ID, BY_DATE
 
 dash.register_page(__name__)
 
-# Define your app layout for the side-by-side page
 layout = html.Div([
+    html.H2("Choose the data you want to plot", style={'textAlign': 'center', 'marginBottom': '20px', 'color': '#2c3e50'}),
+
     dcc.Dropdown(
         id='table-dropdown-1',
-        options=[
-            {'label': table, 'value': table} for table in ['covid_global', 'covid_romania', 'covid19_tm', 'status']
-        ],
-        value=['covid_global', 'covid_romania', 'covid19_tm', 'status'][0] if ['covid_global', 'covid_romania', 'covid19_tm', 'status'] else None,
-        style={'width': '50%'}
+        options=TABLE_OPTIONS,
+        value=TABLE_OPTIONS[0]['value'],
+        style={'width': '50%', 'margin': '0 auto 20px'}
     ),
     dcc.Dropdown(
         id='column-dropdown-1',
         options=[],
-        value=['SUM_DEATHS'],
         multi=True,
-        style={'width': '50%'}
+        style={'width': '50%', 'margin': '0 auto 20px'}
     ),
-    dcc.RangeSlider(
-        id='time-range-slider-1',
-        min=1,
-        max=10,
-        step=1,
-        marks={i: str(i) for i in range(11)},
-        value=[1, 10],
+    html.Div(
+        dcc.RangeSlider(
+            id='time-range-slider-1',
+            min=1,
+            max=10,
+            step=1,
+            marks={i: str(i) for i in range(11)},
+            value=[1, 10],
+        ),
+        style={'width': '80%', 'margin': '20px auto'}
     ),
+
     dcc.Dropdown(
         id='table-dropdown-2',
-        options=[
-            {'label': table, 'value': table} for table in ['covid_global', 'covid_romania', 'covid19_tm', 'status']
-        ],
-        value=['covid_global', 'covid_romania', 'covid19_tm', 'status'][0] if ['covid_global', 'covid_romania', 'covid19_tm', 'status'] else None,
-        style={'width': '50%'}
+        options=TABLE_OPTIONS,
+        value=TABLE_OPTIONS[0]['value'],
+        style={'width': '50%', 'margin': '0 auto 20px'}
     ),
     dcc.Dropdown(
         id='column-dropdown-2',
         options=[],
-        value=['SUM_CASES'],
         multi=True,
-        style={'width': '50%'}
+        style={'width': '50%', 'margin': '0 auto 20px'}
     ),
-    dcc.RangeSlider(
-        id='time-range-slider-2',
-        min=1,
-        max=10,
-        step=1,
-        marks={i: str(i) for i in range(11)},
-        value=[1, 10],
+    html.Div(
+        dcc.RangeSlider(
+            id='time-range-slider-2',
+            min=1,
+            max=10,
+            step=1,
+            marks={i: str(i) for i in range(11)},
+            value=[1, 10],
+        ),
+        style={'width': '80%', 'margin': '20px auto'}
     ),
-    html.Button('Plot Side-by-Side', id='plot-button'),
-    dcc.Graph(id='side-by-side-graph')
+
+    html.Button('Plot Side-by-Side', id='plot-button', style={
+        'display': 'block', 'margin': '30px auto', 'fontSize': '18px',
+        'padding': '10px 20px', 'borderRadius': '50px', 'border': 'none', 'color': 'white',
+        'backgroundColor': '#3498db', 'cursor': 'pointer'
+    }),
+
+    dcc.Graph(id='side-by-side-graph', style={'margin-top': '20px'})  # Ensure there's margin above the graph
 ])
-
-# Define callback to update column dropdown options based on selected table
-
 
 @callback(
     [Output('column-dropdown-1', 'options'),
@@ -70,82 +75,83 @@ layout = html.Div([
      Input('table-dropdown-2', 'value')]
 )
 def update_column_dropdown(table1, table2):
-    columns_table1 = helperfunctions.fetch_data_for_table(table1)
-    columns_table2 = helperfunctions.fetch_data_for_table(table2)
+    columns_table1 = [col for col in helperfunctions.fetch_data_for_table(table1) if col not in [BY_ID, BY_DATE]]
+    columns_table2 = [col for col in helperfunctions.fetch_data_for_table(table2) if col not in [BY_ID, BY_DATE]]
     options_table1 = [{'label': col, 'value': col} for col in columns_table1]
     options_table2 = [{'label': col, 'value': col} for col in columns_table2]
     return options_table1, options_table2
 
-# Define callback to fetch and plot data based on selected tables and columns
+
 @callback(
-    [Output('side-by-side-graph', 'figure'),
-     Output('time-range-slider-1', 'min'),
-     Output('time-range-slider-1', 'max'),
-     Output('time-range-slider-1', 'marks'),
-     Output('time-range-slider-1', 'value'),
-     Output('time-range-slider-2', 'min'),
-     Output('time-range-slider-2', 'max'),
-     Output('time-range-slider-2', 'marks'),
-     Output('time-range-slider-2', 'value')],
-    [Input('table-dropdown-1', 'value'),  # Ensure these inputs are correct
-     Input('column-dropdown-1', 'value'),
-     Input('table-dropdown-2', 'value'),
-     Input('column-dropdown-2', 'value'),
-     Input('time-range-slider-1', 'value'),
-     Input('time-range-slider-2', 'value'),
-     Input('plot-button', 'n_clicks')]
+    [
+        Output('side-by-side-graph', 'figure'),
+        Output('time-range-slider-1', 'min'),
+        Output('time-range-slider-1', 'max'),
+        Output('time-range-slider-1', 'marks'),
+        Output('time-range-slider-1', 'value'),
+        Output('time-range-slider-2', 'min'),
+        Output('time-range-slider-2', 'max'),
+        Output('time-range-slider-2', 'marks'),
+        Output('time-range-slider-2', 'value')
+    ],
+    [
+        Input('table-dropdown-1', 'value'),
+        Input('column-dropdown-1', 'value'),
+        Input('table-dropdown-2', 'value'),
+        Input('column-dropdown-2', 'value'),
+        Input('time-range-slider-1', 'value'),
+        Input('time-range-slider-2', 'value'),
+        Input('plot-button', 'n_clicks')
+    ]
 )
 def plot_side_by_side(table1_name, columns_table1, table2_name, columns_table2, time_range_1, time_range_2, n_clicks):
-    try:
-        if n_clicks is None:
-            return dash.no_update, time_range_1, time_range_2
+    if n_clicks is None:
+        raise PreventUpdate  # Stop execution if no button click
 
-        df_table1 = helperfunctions.fetch_data_for_table(table1_name)
-        df_table2 = helperfunctions.fetch_data_for_table(table2_name)
+    # Fetch data
+    df_table1 = helperfunctions.fetch_data_for_table(table1_name)
+    df_table2 = helperfunctions.fetch_data_for_table(table2_name)
 
-        # Filter data based on the range slider values
-        df_table1_filtered = df_table1[df_table1['DAY_INCREMENT'].between(time_range_1[0], time_range_1[1])]
-        df_table2_filtered = df_table2[df_table2['DAY_INCREMENT'].between(time_range_2[0], time_range_2[1])]
+    if df_table1.empty or df_table2.empty:
+        raise PreventUpdate  # Stop execution if data is empty
 
-        if not df_table1_filtered.empty and not df_table2_filtered.empty:
-            # Determine the range of the time sliders dynamically
-            min_time_1, max_time_1 = int(df_table1['DAY_INCREMENT'].min()), int(df_table1['DAY_INCREMENT'].max())
-            marks_time_1 = {i: str(i) for i in range(min_time_1, max_time_1 + 1)}
+    # Get the data ranges and create marks at reasonable intervals
+    min_time_1, max_time_1 = df_table1[BY_ID].min(), df_table1[BY_DATE].max()
+    min_time_2, max_time_2 = df_table2[BY_DATE].min(), df_table2[BY_DATE].max()
 
-            min_time_2, max_time_2 = int(df_table2['DAY_INCREMENT'].min()), int(df_table2['DAY_INCREMENT'].max())
-            marks_time_2 = {i: str(i) for i in range(min_time_2, max_time_2 + 1)}
+    def create_marks(min_val, max_val):
+        # Adjust the step for marks based on the range
+        step = (max_val - min_val) // 10  # Adjust the denominator to reduce the number of marks
+        if step == 0:
+            step = 1  # Avoid zero division, ensure at least each mark is shown
+        return {i: {'label': str(i), 'style': {'transform': 'rotate(-45deg)', 'white-space': 'nowrap'}} for i in
+                range(min_val, max_val + 1, step)}
 
-            # Split the range into intervals
-            num_intervals = 10
-            interval_length_1 = (max_time_1 - min_time_1) // num_intervals
-            interval_length_2 = (max_time_2 - min_time_2) // num_intervals
+    marks_time_1 = create_marks(min_time_1, max_time_1)
+    marks_time_2 = create_marks(min_time_2, max_time_2)
 
-            interval_marks_1 = {min_time_1 + i * interval_length_1: str(min_time_1 + i * interval_length_1) for i in range(num_intervals + 1)}
-            interval_marks_2 = {min_time_2 + i * interval_length_2: str(min_time_2 + i * interval_length_2) for i in range(num_intervals + 1)}
+    # Slider values should be within the new marks
+    valid_range_1 = [max(min_time_1, time_range_1[0]), min(max_time_1, time_range_1[1])]
+    valid_range_2 = [max(min_time_2, time_range_2[0]), min(max_time_2, time_range_2[1])]
 
-            initial_value_1 = min_time_1, min_time_1 + interval_length_1
-            initial_value_2 = min_time_2, min_time_2 + interval_length_2
+    # Generate the plot
+    df_table1_filtered = df_table1[df_table1['DAY_INCREMENT'].between(*valid_range_1)]
+    df_table2_filtered = df_table2[df_table2['DAY_INCREMENT'].between(*valid_range_2)]
 
-            # Use the filtered dataframes for plotting
-            traces_table1 = [go.Scatter(x=df_table1_filtered['DAY_INCREMENT'], y=df_table1_filtered[col], mode='lines',
-                                        name=f'{table1_name} - {col}') for col in columns_table1]
-            traces_table2 = [go.Scatter(x=df_table2_filtered['DAY_INCREMENT'], y=df_table2_filtered[col], mode='lines',
-                                        name=f'{table2_name} - {col}') for col in columns_table2]
+    # Generate traces for the plot
+    traces_table1 = [go.Scatter(x=df_table1_filtered['DAY_INCREMENT'], y=df_table1_filtered[col], mode='lines',
+                                name=f'{table1_name} - {col}') for col in columns_table1]
+    traces_table2 = [go.Scatter(x=df_table2_filtered['DAY_INCREMENT'], y=df_table2_filtered[col], mode='lines',
+                                name=f'{table2_name} - {col}') for col in columns_table2]
 
-            layout = go.Layout(
-                title=f'Side-by-Side Comparison of {", ".join(columns_table1)} for {table1_name} and {", ".join(columns_table2)} for {table2_name}',
-                xaxis={'title': 'DAY_INCREMENT'},
-                yaxis={'title': 'Values'}
-            )
-            fig = go.Figure(data=traces_table1 + traces_table2, layout=layout)
+    layout = go.Layout(
+        title=f'Side-by-Side Comparison of {", ".join(columns_table1)} and {", ".join(columns_table2)}',
+        xaxis={'title': 'DAY_INCREMENT'},
+        yaxis={'title': 'Values'}
+    )
 
-            # Make sure to return a value for each Output listed in the decorator
-            return fig, min_time_1, max_time_1, interval_marks_1, time_range_1, min_time_2, max_time_2, interval_marks_2, time_range_2
+    fig = go.Figure(data=traces_table1 + traces_table2, layout=layout)
 
-    except Exception as e:
+    # Return all necessary outputs
+    return fig, min_time_1, max_time_1, marks_time_1, valid_range_1, min_time_2, max_time_2, marks_time_2, valid_range_2
 
-        print(f"Error in callback: {str(e)}")
-
-        # Ensure to return the correct number of values, even in case of error
-
-        return dash.no_update, 0, 1, {}, [0, 1], 0, 1, {}, [0, 1]

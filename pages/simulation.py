@@ -29,7 +29,7 @@ input_elements = [
 ]
 
 layout = html.Div([
-    html.H1('Simulation'),
+    html.H1('Epidemic Simulation'),
     dcc.Graph(id='real-time-graph'),
     dcc.Interval(id='interval-component', interval=1*1000, n_intervals=0),
     html.Div([
@@ -195,15 +195,13 @@ def analyze_simulation(n_clicks):
                         {
                             "role": "user",
                             "content": f"Analyze this summarized simulation data: {summarized_data}. "
-                                       f"Using your data, what epidemic/ pandemic does this data resemble?",
+                                       f"Using your data, what epidemic/ pandemic that you know of does this data resemble?",
                         }
                     ],
                     model="gpt-3.5-turbo",
                 )
 
-                # Assuming the response structure allows direct access to 'choices' as attributes
                 try:
-                    # Accessing the first choice's content directly via attributes
                     analysis = chat_completion.choices[0].message.content
                 except AttributeError:
                     print("Failed to extract analysis from the response.")
