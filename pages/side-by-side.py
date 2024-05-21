@@ -4,7 +4,7 @@ from dash import dcc, html, callback
 import plotly.graph_objs as go
 from backend import helperfunctions
 from dash.exceptions import PreventUpdate
-from constants import TABLE_OPTIONS, BY_ID, BY_DATE
+from constants import *
 
 dash.register_page(__name__)
 
@@ -75,10 +75,10 @@ layout = html.Div([
      Input('table-dropdown-2', 'value')]
 )
 def update_column_dropdown(table1, table2):
-    columns_table1 = [col for col in helperfunctions.fetch_data_for_table(table1) if col not in [BY_ID, BY_DATE]]
-    columns_table2 = [col for col in helperfunctions.fetch_data_for_table(table2) if col not in [BY_ID, BY_DATE]]
-    options_table1 = [{'label': col, 'value': col} for col in columns_table1]
-    options_table2 = [{'label': col, 'value': col} for col in columns_table2]
+    columns_table1 = [col for col in helperfunctions.fetch_data_for_table(table1) if col not in ['DAY_INCREMENT', 'DATE_ID']]
+    columns_table2 = [col for col in helperfunctions.fetch_data_for_table(table2) if col not in ['DAY_INCREMENT', 'DATE_ID']]
+    options_table1 = [{'label': COLUMN_NAME_MAPPING.get(col, col), 'value': col} for col in columns_table1]
+    options_table2 = [{'label': COLUMN_NAME_MAPPING.get(col, col), 'value': col} for col in columns_table2]
     return options_table1, options_table2
 
 
@@ -116,16 +116,14 @@ def plot_side_by_side(table1_name, columns_table1, table2_name, columns_table2, 
         raise PreventUpdate  # Stop execution if data is empty
 
     # Get the data ranges and create marks at reasonable intervals
-    min_time_1, max_time_1 = df_table1[BY_ID].min(), df_table1[BY_DATE].max()
-    min_time_2, max_time_2 = df_table2[BY_DATE].min(), df_table2[BY_DATE].max()
+    min_time_1, max_time_1 = df_table1['DAY_INCREMENT'].min(), df_table1['DAY_INCREMENT'].max()
+    min_time_2, max_time_2 = df_table2['DAY_INCREMENT'].min(), df_table2['DAY_INCREMENT'].max()
 
     def create_marks(min_val, max_val):
-        # Adjust the step for marks based on the range
-        step = (max_val - min_val) // 10  # Adjust the denominator to reduce the number of marks
+        step = (max_val - min_val) // 10
         if step == 0:
-            step = 1  # Avoid zero division, ensure at least each mark is shown
-        return {i: {'label': str(i), 'style': {'transform': 'rotate(-45deg)', 'white-space': 'nowrap'}} for i in
-                range(min_val, max_val + 1, step)}
+            step = 1
+        return {i: {'label': str(i), 'style': {'transform': 'rotate(-45deg)', 'white-space': 'nowrap'}} for i in range(min_val, max_val + 1, step)}
 
     marks_time_1 = create_marks(min_time_1, max_time_1)
     marks_time_2 = create_marks(min_time_2, max_time_2)
@@ -134,19 +132,31 @@ def plot_side_by_side(table1_name, columns_table1, table2_name, columns_table2, 
     valid_range_1 = [max(min_time_1, time_range_1[0]), min(max_time_1, time_range_1[1])]
     valid_range_2 = [max(min_time_2, time_range_2[0]), min(max_time_2, time_range_2[1])]
 
-    # Generate the plot
+    # Filter data based on the selected range
     df_table1_filtered = df_table1[df_table1['DAY_INCREMENT'].between(*valid_range_1)]
     df_table2_filtered = df_table2[df_table2['DAY_INCREMENT'].between(*valid_range_2)]
 
-    # Generate traces for the plot
-    traces_table1 = [go.Scatter(x=df_table1_filtered['DAY_INCREMENT'], y=df_table1_filtered[col], mode='lines',
-                                name=f'{table1_name} - {col}') for col in columns_table1]
-    traces_table2 = [go.Scatter(x=df_table2_filtered['DAY_INCREMENT'], y=df_table2_filtered[col], mode='lines',
-                                name=f'{table2_name} - {col}') for col in columns_table2]
+    # Generate traces for the plot with mapped column names
+    traces_table1 = [
+        go.Scatter(
+            x=df_table1_filtered['DAY_INCREMENT'],
+            y=df_table1_filtered[col],
+            mode='lines',
+            name=f'{COLUMN_NAME_MAPPING.get(table1_name, table1_name)} - {COLUMN_NAME_MAPPING.get(col, col)}'
+        ) for col in columns_table1
+    ]
+    traces_table2 = [
+        go.Scatter(
+            x=df_table2_filtered['DAY_INCREMENT'],
+            y=df_table2_filtered[col],
+            mode='lines',
+            name=f'{COLUMN_NAME_MAPPING.get(table2_name, table2_name)} - {COLUMN_NAME_MAPPING.get(col, col)}'
+        ) for col in columns_table2
+    ]
 
     layout = go.Layout(
-        title=f'Side-by-Side Comparison of {", ".join(columns_table1)} and {", ".join(columns_table2)}',
-        xaxis={'title': 'DAY_INCREMENT'},
+        title=f'Side-by-Side Comparison of {", ".join([COLUMN_NAME_MAPPING.get(col, col) for col in columns_table1])} and {", ".join([COLUMN_NAME_MAPPING.get(col, col) for col in columns_table2])}',
+        xaxis={'title': 'DAYS'},
         yaxis={'title': 'Values'}
     )
 
@@ -154,4 +164,3 @@ def plot_side_by_side(table1_name, columns_table1, table2_name, columns_table2, 
 
     # Return all necessary outputs
     return fig, min_time_1, max_time_1, marks_time_1, valid_range_1, min_time_2, max_time_2, marks_time_2, valid_range_2
-

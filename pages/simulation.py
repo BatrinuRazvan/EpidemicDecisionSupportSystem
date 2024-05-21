@@ -1,5 +1,5 @@
 import dash
-from dash import html, dcc, Output, Input, callback
+from dash import html, dcc, Output, Input, callback, State
 import plotly.express as px
 import requests
 import json
@@ -39,7 +39,7 @@ layout = html.Div([
         html.Button('Reset Simulation', id='reset-simulation-button', n_clicks=0),
     ]),
     html.Div(id='dummy-output', style={'display': 'none'}),
-    html.Div( input_elements, id='changable-parameters'),
+    html.Div(input_elements, id='changable-parameters'),
     html.Button('Analyze Simulation', id='analyze-simulation-button', n_clicks=0),
     html.Div(id='analysis-output'),
 ])
@@ -66,65 +66,9 @@ def update_graph(n):
     [Input('start-simulation-button', 'n_clicks'),
      Input('pause-simulation-button', 'n_clicks'),
      Input('resume-simulation-button', 'n_clicks'),
-     Input('reset-simulation-button', 'n_clicks')]
-)
-def control_simulation(start_clicks, pause_clicks, resume_clicks, reset_clicks):
-    # Placeholder logic for demonstration purposes
-    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-
-    if 'start-simulation-button' in changed_id and start_clicks > 0:
-        try:
-            requests.post('http://localhost:8080/startSimulation')
-            print("Simulation started successfully.")
-        except requests.RequestException as e:
-            print(f"Failed to start simulation: {e}")
-
-    elif 'pause-simulation-button' in changed_id and pause_clicks > 0:
-        try:
-            requests.post('http://localhost:8080/pauseSimulation')
-            print("Simulation paused.")
-        except requests.RequestException as e:
-            print(f"Failed to start simulation: {e}")
-
-    elif 'resume-simulation-button' in changed_id and resume_clicks > 0:
-        try:
-            requests.post('http://localhost:8080/resumeSimulation')
-            print("Simulation resumed.")
-        except requests.RequestException as e:
-            print(f"Failed to start simulation: {e}")
-
-    elif 'reset-simulation-button' in changed_id and reset_clicks > 0:
-        try:
-            requests.post('http://localhost:8080/resetSimulation')
-            print("Simulation reset.")
-        except requests.RequestException as e:
-            print(f"Failed to start simulation: {e}")
-
-    # For demonstration, returning None
-    return None
-
-
-@callback(
-    [Output(input_id, 'value') for input_id in ['nb-of-people', 'number_of_months', 'number_of_days',
-                                                'start_sick', 'sleepTime', 'average_time_of_encounters',
-                                                'max_chances_going_outside', 'time_incubating',
-                                                'time_before_infectious', 'max_infectuosity', 'max_lethality',
-                                                'days_before_possible_healing', 'healing_chances',
-                                                'immunity_bounds', 'immunity_ri_start', 'immunity_modifier']],
-    [Input(input_id, 'value') for input_id in ['nb-of-people', 'number_of_months', 'number_of_days',
-                                               'start_sick', 'sleepTime', 'average_time_of_encounters',
-                                               'max_chances_going_outside', 'time_incubating',
-                                               'time_before_infectious', 'max_infectuosity', 'max_lethality',
-                                               'days_before_possible_healing', 'healing_chances',
-                                               'immunity_bounds', 'immunity_ri_start', 'immunity_modifier']]
-)
-def update_input_values(*args):
-    return args
-
-@callback(
-    Output('changable-parameters', 'children'),
-    [Input('nb-of-people', 'value')] +  # Add other input IDs as needed
-    [Input('number_of_months', 'value'),
+     Input('reset-simulation-button', 'n_clicks'),
+     Input('nb-of-people', 'value'),
+     Input('number_of_months', 'value'),
      Input('number_of_days', 'value'),
      Input('start_sick', 'value'),
      Input('sleepTime', 'value'),
@@ -140,40 +84,56 @@ def update_input_values(*args):
      Input('immunity_ri_start', 'value'),
      Input('immunity_modifier', 'value')]
 )
-def update_json(nb_of_people_value, *args):
+def control_simulation_and_submit_parameters(start_clicks, pause_clicks, resume_clicks, reset_clicks, *args):
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
     parameter_values = {input_id: value for input_id, value in zip(
         ['nb-of-people', 'number_of_months', 'number_of_days', 'start_sick', 'sleepTime', 'average_time_of_encounters',
          'max_chances_going_outside', 'time_incubating', 'time_before_infectious', 'max_infectuosity', 'max_lethality',
          'days_before_possible_healing', 'healing_chances', 'immunity_bounds', 'immunity_ri_start', 'immunity_modifier'],
-        [nb_of_people_value] + list(args)
+        args
     )}
 
-    with open('parameters.json', 'w') as json_file:
-        json.dump(parameter_values, json_file)
+    # Send parameters on every input change
+    try:
+        response = requests.post('http://localhost:8080/submitParameters', json=parameter_values)
+        if response.status_code == 200:
+            print("Parameters submitted successfully.")
+        else:
+            print(f"Failed to submit parameters: {response.status_code}")
+    except requests.RequestException as e:
+        print(f"Error during parameters submission: {e}")
 
+    # Control simulation based on button clicks
+    if 'start-simulation-button' in changed_id and start_clicks > 0:
+        try:
+            requests.post('http://localhost:8080/startSimulation')
+            print("Simulation started successfully.")
+        except requests.RequestException as e:
+            print(f"Failed to start simulation: {e}")
 
-    input_elements = [
-        dcc.Input(id='nb-of-people', type='number', value=nb_of_people_value, placeholder='Number of People'),
-        dcc.Input(id='number_of_months', type='number', value=args[0], placeholder='Number of Months'),
-        dcc.Input(id='number_of_days', type='number', value=args[1], placeholder="Number of Days"),
-        dcc.Input(id='start_sick', type='number', value=args[2], placeholder="Start Sick"),
-        dcc.Input(id='sleepTime', type='number', value=args[3], placeholder="Sleep Time"),
-        dcc.Input(id='average_time_of_encounters', type='number', value=args[4],
-                  placeholder="Average Time Of Encounters"),
-        dcc.Input(id='max_chances_going_outside', type='number', value=args[5],
-                  placeholder="Maximum Chances Of Going Outside"),
-        dcc.Input(id='time_incubating', type='number', value=args[6], placeholder="Time Incubating"),
-        dcc.Input(id='time_before_infectious', type='number', value=args[7], placeholder="Time Before Infectious"),
-        dcc.Input(id='max_infectuosity', type='number', value=args[8], placeholder="Maximum Infectious"),
-        dcc.Input(id='max_lethality', type='number', value=args[9], placeholder="Maximum Lethality"),
-        dcc.Input(id='days_before_possible_healing', type='number', value=args[10], placeholder="Days Before Healing"),
-        dcc.Input(id='healing_chances', type='number', value=args[11], placeholder="Healing Chance"),
-        dcc.Input(id='immunity_bounds', type='number', value=args[12], placeholder="Immunity Bounds"),
-        dcc.Input(id='immunity_ri_start', type='number', value=args[13], placeholder="Immunity Ri Start"),
-        dcc.Input(id='immunity_modifier', type='number', value=args[14], placeholder="Immunity Modifier")
-            ]
+    elif 'pause-simulation-button' in changed_id and pause_clicks > 0:
+        try:
+            requests.post('http://localhost:8080/pauseSimulation')
+            print("Simulation paused.")
+        except requests.RequestException as e:
+            print(f"Failed to pause simulation: {e}")
 
-    return input_elements
+    elif 'resume-simulation-button' in changed_id and resume_clicks > 0:
+        try:
+            requests.post('http://localhost:8080/resumeSimulation')
+            print("Simulation resumed.")
+        except requests.RequestException as e:
+            print(f"Failed to resume simulation: {e}")
+
+    elif 'reset-simulation-button' in changed_id and reset_clicks > 0:
+        try:
+            requests.post('http://localhost:8080/resetSimulation')
+            print("Simulation reset.")
+        except requests.RequestException as e:
+            print(f"Failed to reset simulation: {e}")
+
+    return None
 
 
 @callback(
@@ -186,7 +146,6 @@ def analyze_simulation(n_clicks):
         print(summarized_data)
         if summarized_data:
             try:
-                # Initialize the OpenAI client with the API key retrieved at runtime
                 api_key = helperfunctions.getOpenApiKey()
                 client = openai.OpenAI(api_key=api_key)
 

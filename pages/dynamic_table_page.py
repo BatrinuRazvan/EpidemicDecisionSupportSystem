@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from backend import helperfunctions
 from sklearn.linear_model import LinearRegression
-from constants import TABLE_OPTIONS, BY_DATE, BY_ID
+from constants import *
 
 # Initialize Dash app
 dash.register_page(__name__)
@@ -73,7 +73,6 @@ layout = html.Div([
 
 ], style={'fontFamily': 'Arial, sans-serif'})
 
-
 # Callbacks for dynamic dropdowns and graph updates
 @callback(
     Output('column-dropdown', 'options'),
@@ -81,7 +80,7 @@ layout = html.Div([
 )
 def update_column_dropdown(selected_table):
     columns = helperfunctions.fetch_data_for_table(selected_table)
-    options = [{'label': col, 'value': col} for col in columns if col not in [BY_ID, BY_DATE]]
+    options = [{'label': COLUMN_NAME_MAPPING.get(col, col), 'value': col} for col in columns if col not in [BY_ID, BY_DATE]]
     return options
 
 # Callback to update the static graph
@@ -93,28 +92,24 @@ def update_column_dropdown(selected_table):
 )
 def update_static_graph(selected_table, selected_columns):
     if not selected_columns:
-        # Return an empty figure if no columns are selected
         return go.Figure()
 
-    # Fetch data
     df = helperfunctions.fetch_data_for_table(selected_table)
     if df.empty:
-        # Return an empty figure if the data frame is empty
         return go.Figure()
 
-    # Check if all selected columns are in the DataFrame
     missing_cols = [col for col in selected_columns if col not in df.columns]
     if missing_cols:
         print(f"Missing columns in DataFrame: {missing_cols}")
         return go.Figure()
 
-    # Attempt to create a line plot
     try:
         fig = px.line(df, x=BY_DATE, y=selected_columns, title='Default Analysis')
+        fig.for_each_trace(lambda trace: trace.update(name=COLUMN_NAME_MAPPING.get(trace.name, trace.name)))
         return fig
     except Exception as e:
         print(f"Error in plotting with selected columns {selected_columns}: {e}")
-        return go.Figure()  # Return an empty figure in case of error
+        return go.Figure()
 
 # Callback for Trend Analysis Graph
 @callback(
@@ -141,9 +136,8 @@ def update_trend_graph(selected_table, selected_columns, time_span):
         model = LinearRegression()
         model.fit(X, y)
         trend_line = model.predict(X)
-        # Adding the trend line and actual data points to the figure
-        trend_fig.add_trace(go.Scatter(x=df_resampled[BY_DATE], y=trend_line, mode='lines', name=f'{col} Trend'))
-        trend_fig.add_trace(go.Scatter(x=df_resampled[BY_DATE], y=y, mode='markers', name=f'{col} Actual'))
+        trend_fig.add_trace(go.Scatter(x=df_resampled[BY_DATE], y=trend_line, mode='lines', name=f'{COLUMN_NAME_MAPPING.get(col, col)} Trend'))
+        trend_fig.add_trace(go.Scatter(x=df_resampled[BY_DATE], y=y, mode='markers', name=f'{COLUMN_NAME_MAPPING.get(col, col)} Actual'))
 
     trend_fig.update_layout(title='Trend Analysis', xaxis_title='Date', yaxis_title='Value')
     return trend_fig
@@ -167,7 +161,7 @@ def update_dynamic_chart(selected_table, selected_columns, time_span, chart_type
     df_resampled = df[selected_columns].resample(time_span).sum().reset_index()
 
     if chart_type == 'line':
-        fig = px.line(df_resampled, x=BY_DATE, y=selected_columns, title=' Line Chart')
+        fig = px.line(df_resampled, x=BY_DATE, y=selected_columns, title='Line Chart')
     elif chart_type == 'bar':
         fig = px.bar(df_resampled, x=BY_DATE, y=selected_columns, title='Stacked Bar Chart', barmode='stack')
     elif chart_type == 'area':
@@ -176,6 +170,7 @@ def update_dynamic_chart(selected_table, selected_columns, time_span, chart_type
         if len(selected_columns) == 1:
             fig = px.pie(df_resampled, names=BY_DATE, values=selected_columns[0], title='Pie Chart')
         else:
-            return dash.no_update  # Pie chart requires exactly one column selection
+            return dash.no_update
 
+    fig.for_each_trace(lambda trace: trace.update(name=COLUMN_NAME_MAPPING.get(trace.name, trace.name)))
     return fig

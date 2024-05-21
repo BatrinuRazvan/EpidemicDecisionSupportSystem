@@ -21,11 +21,10 @@ def get_db_connection():
 def fetch_data_for_simulation():
     try:
         conn = get_db_connection()
-        query = "SELECT DAY_INCREMENT, TOTAL_HOSPITALIZATIONS, TOTAL_RECOVERED, TOTAL_DEATHS, DAILY_CASES FROM simulation"
+        query = "SELECT * FROM simulation"
         df = pd.read_sql(query, conn)
         data_list = df.to_dict('records')
         print("Data fetched successfully:")
-        print(data_list)
         conn.close()
         return df
     except Exception as e:

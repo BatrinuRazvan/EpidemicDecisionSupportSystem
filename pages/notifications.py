@@ -246,62 +246,6 @@ layout = html.Div([
     right_side_layout
 ], style={'width': '100%', 'display': 'flex', 'height': '100%', 'fontFamily': '"Arial", sans-serif'})
 
-# layout = html.Div([
-#     html.Div([  # Left Side
-#         dl.Map(center=[50, 10], zoom=4, children=[
-#             dl.TileLayer(),
-#             dl.LayerGroup(id="marker-layer", children=[
-#                 dl.Marker(position=(info["lat"], info["lon"]), id={"type": "city-marker", "index": city}, children=[
-#                     dl.Tooltip(city),
-#                     dl.Popup(city),
-#                 ]) for city, info in cities.items()
-#             ]),
-#         ], style={'width': '100%x', 'height': '700px'}),
-#         dcc.Dropdown(id='disaster-dropdown', options=disaster_options, placeholder="Select a disaster type", style={'margin-top': '10px'}),
-#         dcc.Dropdown(id='gravity-dropdown', options=gravity_options, placeholder="Select the gravity of the situation", style={'margin-top': '10px'}),
-#         dcc.Input(id='title-input', type='text', placeholder='Title', style={'margin-top': '10px'}),
-#         dcc.Input(id='range-input', type='number', placeholder='Range in km (10-100)', min=10, max=100, step=10, value=50, style={'margin-top': '10px'}),
-#         dcc.Textarea(id='description-input', placeholder='Enter a detailed description of the situation...', style={'width': '100%', 'height': 100, 'margin-top': '10px'}),
-#         html.Button('Submit', id='submit-btn', n_clicks=0, style={'margin-top': '10px'}),
-#         html.Button('Update Map', id='update-map-btn', n_clicks=0, style={'margin-top': '10px'}),
-#         html.Div(id='output-div', style={'margin-top': '20px'}),
-#         dcc.Store(id='circles-store'),  # Store for keeping track of circles
-#         dcc.Store(id='selected-city')
-#     ], style={'width': '49%', 'display': 'inline-block', 'padding': '20px', 'verticalAlign': 'top'}),
-#
-#     # Vertical Separator
-#     html.Div(style={'width': '2px',  'backgroundColor': 'black'}),
-#
-#     # Right Side
-#     html.Div([
-#         html.Div([
-#             html.Div([
-#                 html.Button(
-#                     f"{data['disaster']} - {data['city']}",
-#                     id={'type': 'disaster-button', 'index': data['city']},
-#                     n_clicks=0,
-#                     style={
-#                         'backgroundColor': gravity_colors.get(data.get('severity', 'default'), 'grey'),
-#                         'border': 'none',
-#                         'color': 'white',
-#                         'padding': '10px 20px',
-#                         'textAlign': 'center',
-#                         'textDecoration': 'none',
-#                         'display': 'block',  # Change to block for stacking
-#                         'fontSize': '14px',
-#                         'margin': '5px 0',  # Adjusted for spacing between buttons
-#                         'cursor': 'pointer',
-#                         'borderRadius': '20px',
-#                         'width': '100%'  # Optional: Makes button full-width
-#                     }
-#                 ),
-#                 html.Div(id={'type': 'details-container', 'index': data['city']}, style={'display': 'none', 'padding': '5px'})
-#             ]) for data in data_for_buttons
-#         ], id='disaster-buttons-container', style={'display': 'flex', 'flexDirection': 'column'}),
-#         html.Div(id='city-details')  # Container for city details
-#     ], style={'width': '49%', 'display': 'inline-block', 'padding': '20px', 'verticalAlign': 'top'})
-# ], style={'width': '100%', 'display': 'flex', 'height': '100%'})
-
 
 @callback(
     [Output({'type': 'disaster-button', 'index': dash.ALL}, 'style'),
