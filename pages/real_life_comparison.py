@@ -1,47 +1,56 @@
 import dash
-from dash import html, dcc, Output, Input, callback
+import dash_core_components as dcc
+import dash_html_components as html
+from dash import callback
+from dash.dependencies import Input, Output
 import plotly.express as px
+import plotly.graph_objs as go
 from backend import helperfunctions
 import pandas as pd
 
-def fetch_data():
-    try:
-        conn = helperfunctions.get_db_connection()
-        query = "SELECT DATE_ID, cazuri, decese FROM covid19_tm"
-        df = pd.read_sql(query, conn)
-        data_list = df.to_dict('records')  # Convert DataFrame to list of dicts
-        print("Data fetched successfully:")
-        print(data_list)  # Print the entire list
-        conn.close()
-        return df
-    except Exception as e:
-        print(f"Error fetching data: {e}")
-        return pd.DataFrame()  # Return an empty DataFrame in case of an error
+dash.register_page(__name__, path='/real_life_comparison')
 
+# Fetch the disease data
+disease_data = helperfunctions.fetch_disease_table()
+
+# Convert disease data to a DataFrame
+df_disease = pd.DataFrame(disease_data, columns=["Disease", "Total"])
+
+fig_pie = px.pie(df_disease, names="Disease", values="Total", title="Disease Distribution")
 
 layout = html.Div([
-    html.H1('Covid19 Real-Life Comparison'),
-    dcc.Graph(id='covid19-graph'),
-    dcc.Interval(id='interval-component', interval=1*1000, n_intervals=0),
+    dcc.Graph(id="pie-chart", figure=fig_pie),
+    html.Div(id="symptoms-output"),
+    dcc.Graph(id="time-series-chart")
 ])
 
 
-@callback(Output('covid19-graph', 'figure'), [Input('interval-component', 'n_intervals')])
+# Callback to update symptoms and time series chart based on pie chart selection
+@callback(
+    [Output("symptoms-output", "children"),
+     Output("time-series-chart", "figure")],
+    [Input("pie-chart", "clickData")]
+)
+def update_output(clickData):
+    if clickData is None:
+        return "", go.Figure()
 
+    # Extract the clicked disease
+    selected_disease = clickData["points"][0]["label"]
 
-def update_graph(n):
-    df = fetch_data()
-    if df.empty:
-        print("No data retrieved from the database.")
-        return px.area()  # Return an empty graph if no data is retrieved
+    # Fetch symptoms for the selected disease
+    symptoms_data = helperfunctions.fetch_symptoms_table(selected_disease)
 
-    try:
-        fig = px.area(df, x='DATE_ID', y=['cazuri', 'decese'],
-                      color_discrete_map={'cazuri': 'red', 'decese': 'gray'})
-        return fig
-    except Exception as e:
-        print(f"Error creating graph: {e}")
-        return {}
+    # Convert symptoms data to a list of strings
+    symptoms_list = [html.Div(["• ", symptom]) for symptom in symptoms_data]
 
+    # Fetch disease timestamp data for the selected disease
+    timestamp_data = helperfunctions.fetch_disease_timestamp_table(selected_disease)
 
-dash.register_page(__name__, path='/real_life_comparison')
+    # Convert timestamp data to a DataFrame
+    df_timestamp = pd.DataFrame(timestamp_data, columns=["Timestamp", "Total"])
+
+    # Create the time series chart
+    fig_time_series = px.line(df_timestamp, x="Timestamp", y="Total", title=f"Time Series for {selected_disease}")
+
+    return symptoms_list, fig_time_series

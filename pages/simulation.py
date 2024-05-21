@@ -2,7 +2,6 @@ import dash
 from dash import html, dcc, Output, Input, callback, State
 import plotly.express as px
 import requests
-import json
 from dash.exceptions import PreventUpdate
 from backend import helperfunctions
 import openai
@@ -96,7 +95,7 @@ def control_simulation_and_submit_parameters(start_clicks, pause_clicks, resume_
 
     # Send parameters on every input change
     try:
-        response = requests.post('http://localhost:8080/submitParameters', json=parameter_values)
+        response = requests.post('http://localhost:8080/updateParameters', json=parameter_values)
         if response.status_code == 200:
             print("Parameters submitted successfully.")
         else:
