@@ -38,8 +38,8 @@ COLUMN_NAME_MAPPING = {
 }
 
 SIMULATION_LABELS = {
-    'numberOfAgentsParam': 'Number of Agents',
-    'numberOfSickAtStartParam': 'Number Sick at Start',
+    'numberOfAgentsParam': 'Number of Agents: ',
+    'numberOfSickAtStartParam': 'Number Sick at Start: ',
     'simPeriodParam': 'Simulation Period (months)',
     'standardIncubationTimeDiseaseParam': 'Incubation Time (days)',
     'chanceToTransmitDiseaseParam': 'Transmission Chance (%)',

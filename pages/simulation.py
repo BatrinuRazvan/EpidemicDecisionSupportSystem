@@ -12,7 +12,7 @@ dash.register_page(__name__)
 main_parameters = [
     html.Div([
         html.Label(SIMULATION_LABELS['numberOfAgentsParam']),
-        dcc.Input(id='numberOfAgentsParam', type='number', value=1000)
+        dcc.Input(id='numberOfAgentsParam', type='number', value=100000)
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['numberOfSickAtStartParam']),
@@ -105,25 +105,29 @@ layout = html.Div([
     ], style={'text-align': 'center'}),
     html.Div(id='dummy-output', style={'display': 'none'}),
     html.Div(main_parameters, id='main-parameters'),
-    html.H3('Disease Parameters'),
-    html.Button('▼', id='toggle-disease-parameters', n_clicks=0, style={'border': 'none', 'background': 'none', 'font-size': '24px', 'color': '#007bff'}),
+    html.Div([
+        html.H3('Disease Parameters'),
+        html.Button('▼', id='toggle-disease-parameters', n_clicks=0, style={'border': 'none', 'background': 'none', 'font-size': '24px', 'color': '#007bff', 'margin-left': '10px'}),
+    ], style={'display': 'flex', 'align-items': 'center'}),
     html.Div(disease_parameters, id='disease-parameters', style={'display': 'none'}),
     html.Div([
         html.H3('Agent Parameters'),
-        html.Button('Agent Parameters ▼', id='toggle-agent-parameters', n_clicks=0,
-                    style={'border': 'none', 'background': 'none', 'font-size': '24px'}),
-    ]),
+        html.Button('▼', id='toggle-agent-parameters', n_clicks=0, style={'border': 'none', 'background': 'none', 'font-size': '24px', 'color': '#007bff', 'margin-left': '10px'}),
+    ], style={'display': 'flex', 'align-items': 'center'}),
     html.Div(agent_parameters, id='agent-parameters', style={'display': 'none'}),
-    html.H3('Mask Parameters'),
-    html.Button('▼', id='toggle-mask-parameters', n_clicks=0, style={'border': 'none', 'background': 'none', 'font-size': '24px', 'color': '#007bff'}),
+    html.Div([
+        html.H3('Mask Parameters'),
+        html.Button('▼', id='toggle-mask-parameters', n_clicks=0, style={'border': 'none', 'background': 'none', 'font-size': '24px', 'color': '#007bff', 'margin-left': '10px'}),
+    ], style={'display': 'flex', 'align-items': 'center'}),
     html.Div(mask_parameters, id='mask-parameters', style={'display': 'none'}),
-    html.H3('Vaccine Parameters'),
-    html.Button('▼', id='toggle-vaccine-parameters', n_clicks=0, style={'border': 'none', 'background': 'none', 'font-size': '24px', 'color': '#007bff'}),
+    html.Div([
+        html.H3('Vaccine Parameters'),
+        html.Button('▼', id='toggle-vaccine-parameters', n_clicks=0, style={'border': 'none', 'background': 'none', 'font-size': '24px', 'color': '#007bff', 'margin-left': '10px'}),
+    ], style={'display': 'flex', 'align-items': 'center'}),
     html.Div(vaccine_parameters, id='vaccine-parameters', style={'display': 'none'}),
-    html.Button('Analyze Simulation', id='analyze-simulation-button', n_clicks=0, style={'border-radius': '20px', 'background-color': '#007bff', 'color': 'white', 'font-size': '20px', 'margin': '10px', 'marginTop': '1%'}),
+    html.Button('Analyze Simulation', id='analyze-simulation-button', n_clicks=0, style={'border-radius': '20px', 'background-color': '#007bff', 'color': 'white', 'font-size': '20px', 'margin': '10px'}),
     html.Div(id='analysis-output'),
 ])
-
 
 @callback(
     Output('real-time-graph', 'figure'),
@@ -145,89 +149,100 @@ def update_graph(n):
 
 @callback(
     Output('dummy-output', 'children'),
-    [Input('start-simulation-button', 'n_clicks'),
-     Input('pause-simulation-button', 'n_clicks'),
-     Input('resume-simulation-button', 'n_clicks'),
-     Input('reset-simulation-button', 'n_clicks'),
-     State('numberOfAgentsParam', 'value'),
-     State('numberOfSickAtStartParam', 'value'),
-     State('simPeriodParam', 'value'),
-     State('standardIncubationTimeDiseaseParam', 'value'),
-     State('chanceToTransmitDiseaseParam', 'value'),
-     State('healingTimeDiseaseParam', 'value'),
-     State('initialChanceToHealParam', 'value'),
-     State('initialChanceToKillParam', 'value'),
-     State('chanceForAsymptomaticParam', 'value'),
-     State('chanceToGoOutParam', 'value'),
-     State('chanceToSelfQuarantineParam', 'value'),
-     State('agentsAtCentralLocation_atSameTimeParam', 'value'),
-     State('maskDistributionTimeParam', 'value'),
-     State('maskCooldownTimeParam', 'value'),
-     State('maskUse', 'value'),
-     State('vaccineDistributionTimeParam', 'value'),
-     State('vaccineEnforced', 'value')]
+    Output('numberOfAgentsParam', 'disabled'),
+    Output('numberOfSickAtStartParam', 'disabled'),
+    Output('simPeriodParam', 'disabled'),
+    Input('start-simulation-button', 'n_clicks'),
+    Input('reset-simulation-button', 'n_clicks'),
+    Input('numberOfAgentsParam', 'value'),
+    Input('numberOfSickAtStartParam', 'value'),
+    Input('simPeriodParam', 'value'),
+    Input('standardIncubationTimeDiseaseParam', 'value'),
+    Input('chanceToTransmitDiseaseParam', 'value'),
+    Input('healingTimeDiseaseParam', 'value'),
+    Input('initialChanceToHealParam', 'value'),
+    Input('initialChanceToKillParam', 'value'),
+    Input('chanceForAsymptomaticParam', 'value'),
+    Input('chanceToGoOutParam', 'value'),
+    Input('chanceToSelfQuarantineParam', 'value'),
+    Input('agentsAtCentralLocation_atSameTimeParam', 'value'),
+    Input('maskDistributionTimeParam', 'value'),
+    Input('maskCooldownTimeParam', 'value'),
+    Input('maskUse', 'value'),
+    Input('vaccineDistributionTimeParam', 'value'),
+    Input('vaccineEnforced', 'value')
 )
-def control_simulation_and_submit_parameters(start_clicks, pause_clicks, resume_clicks, reset_clicks, *args):
+def control_simulation_and_submit_parameters(start_clicks, reset_clicks, *args):
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    param_values = list(args)
+
+    main_params_disabled = False
+    if 'start-simulation-button' in changed_id:
+        main_params_disabled = True
+    elif 'reset-simulation-button' in changed_id:
+        main_params_disabled = False
 
     parameter_values = {
-        'numberOfAgentsParam': args[0],
-        'numberOfSickAtStartParam': args[1],
-        'simPeriodParam': args[2],
-        'standardIncubationTimeDiseaseParam': args[3],
-        'chanceToTransmitDiseaseParam': args[4],
-        'healingTimeDiseaseParam': args[5],
-        'initialChanceToHealParam': args[6],
-        'initialChanceToKillParam': args[7],
-        'chanceForAsymptomaticParam': args[8],
-        'chanceToGoOutParam': args[9],
-        'chanceToSelfQuarantineParam': args[10],
-        'agentsAtCentralLocation_atSameTimeParam': args[11],
-        'maskDistributionTimeParam': args[12],
-        'maskCooldownTimeParam': args[13],
-        'maskUse': 'maskUse' in args[14],
-        'vaccineDistributionTimeParam': args[15],
-        'vaccineEnforced': 'vaccineEnforced' in args[16]
+        'numberOfAgentsParam': param_values[0],
+        'numberOfSickAtStartParam': param_values[1],
+        'simPeriodParam': param_values[2],
+        'standardIncubationTimeDiseaseParam': param_values[3],
+        'chanceToTransmitDiseaseParam': param_values[4],
+        'healingTimeDiseaseParam': param_values[5],
+        'initialChanceToHealParam': param_values[6],
+        'initialChanceToKillParam': param_values[7],
+        'chanceForAsymptomaticParam': param_values[8],
+        'chanceToGoOutParam': param_values[9],
+        'chanceToSelfQuarantineParam': param_values[10],
+        'agentsAtCentralLocation_atSameTimeParam': param_values[11],
+        'maskDistributionTimeParam': param_values[12],
+        'maskCooldownTimeParam': param_values[13],
+        'maskUse': 'maskUse' in param_values[14],
+        'vaccineDistributionTimeParam': param_values[15],
+        'vaccineEnforced': 'vaccineEnforced' in param_values[16]
     }
 
-    try:
-        response = requests.post('http://localhost:8080/updateParameters', json=parameter_values)
-        if response.status_code == 200:
-            print("Parameters submitted successfully.")
-        else:
-            print(f"Failed to submit parameters: {response.status_code}")
-    except requests.RequestException as e:
-        print(f"Error during parameters submission: {e}")
+    if changed_id:
+        param_key = changed_id.split('.')[0]
+        if param_key in parameter_values:
+            try:
+                response = requests.post('http://localhost:8080/updateParameters', json={param_key: parameter_values[param_key]})
+                if response.status_code == 200:
+                    print(f"Parameter {param_key} updated successfully.")
+                else:
+                    print(f"Failed to update parameter {param_key}: {response.status_code}")
+            except requests.RequestException as e:
+                print(f"Error during parameter update: {e}")
 
-    if 'start-simulation-button' in changed_id and start_clicks > 0:
+    if 'start-simulation-button' in changed_id:
         try:
-            requests.post('http://localhost:8080/startSimulation')
+            requests.post('http://localhost:8080/startSimulatio')
             print("Simulation started successfully.")
         except requests.RequestException as e:
             print(f"Failed to start simulation: {e}")
 
-    elif 'pause-simulation-button' in changed_id and pause_clicks > 0:
+    elif 'reset-simulation-button' in changed_id:
+        try:
+            requests.post('http://localhost:8080/resetSimulatio')
+            print("Simulation reset.")
+        except requests.RequestException as e:
+            print(f"Failed to reset simulation: {e}")
+
+    elif 'pause-simulation-button' in changed_id:
         try:
             requests.post('http://localhost:8080/pauseSimulation')
             print("Simulation paused.")
         except requests.RequestException as e:
             print(f"Failed to pause simulation: {e}")
 
-    elif 'resume-simulation-button' in changed_id and resume_clicks > 0:
+    elif 'resume-simulation-button' in changed_id:
         try:
             requests.post('http://localhost:8080/resumeSimulation')
             print("Simulation resumed.")
         except requests.RequestException as e:
             print(f"Failed to resume simulation: {e}")
 
-    elif 'reset-simulation-button' in changed_id and reset_clicks > 0:
-        try:
-            requests.post('http://localhost:8080/resetSimulation')
-            print("Simulation reset.")
-        except requests.RequestException as e:
-            print(f"Failed to reset simulation: {e}")
-
-    return None
+    return None, main_params_disabled, main_params_disabled, main_params_disabled
 
 @callback(
     Output('disease-parameters', 'style'),
