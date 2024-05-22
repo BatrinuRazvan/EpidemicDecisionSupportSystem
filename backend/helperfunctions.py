@@ -7,16 +7,14 @@ API_BASE_URL = "http://localhost:8080"
 
 
 def get_db_connection():
-    dbHost = config('HOST')
-    dbUser = config('USER')
-    dbPassword = config('PASSWORD')
-    dbDatabase = config('DATABASE')
-    return mysql.connector.connect(
-        host=dbHost,
-        user=dbUser,
-        password=dbPassword,
-        database=dbDatabase
-    )
+    db_config = {
+        'host': config('HOST'),
+        'user': config('USER'),
+        'password': config('PASSWORD'),
+        'database': config('DATABASE')
+    }
+    return mysql.connector.connect(**db_config)
+
 
 def fetch_data_for_simulation():
     try:
@@ -46,6 +44,8 @@ def fetch_data_for_table(selected_table):
             query = "SELECT * FROM covid_romania"
         elif selected_table == 'simulation':
             query = "SELECT * FROM simulation"
+        elif selected_table == 'diagnostics':
+            query = "SELECT * FROM DIAGNOSTICS"
         else:
             # Add more tables as needed
             print(f"Invalid table name: {selected_table}")
@@ -109,3 +109,18 @@ def fetch_and_summarize_simulation_data():
 
 def getOpenApiKey():
     return config('OPENAPIKEY')
+
+
+def fetch_data_for_diagnostic(selected_table, diagnosticName):
+    with get_db_connection() as conn:
+        cursor = conn.cursor(dictionary=True)
+        query = f"SELECT * FROM {selected_table} WHERE DIAGNOSTICNAME = %s"
+        cursor.execute(query, (diagnosticName,))
+        data_list = cursor.fetchall()
+        if data_list:
+            columns = [col[0] for col in cursor.description]
+            df = pd.DataFrame(data_list, columns=columns)
+            print("Data fetched successfully:", df)
+        else:
+            df = pd.DataFrame()
+        return df

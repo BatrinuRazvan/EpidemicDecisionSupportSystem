@@ -32,7 +32,29 @@ COLUMN_NAME_MAPPING = {
     'TOTAL_VACCINATIONS': 'Total Vaccinations',
     'DAILY_VACCINATIONS': 'Daily Vaccinations',
     'CURRENT_HOSP_OCCUPANCY': 'Hospital Fill Rate',
-    'CURRENT_ICU_OCCUPANCY': 'ICU Fill Rate'
+    'CURRENT_ICU_OCCUPANCY': 'ICU Fill Rate',
+    'REGISTERED': 'Cases Registered',
+    'TIMESTAMP': 'Over Time'
+}
+
+SIMULATION_LABELS = {
+    'numberOfAgentsParam': 'Number of Agents',
+    'numberOfSickAtStartParam': 'Number Sick at Start',
+    'simPeriodParam': 'Simulation Period (months)',
+    'standardIncubationTimeDiseaseParam': 'Incubation Time (days)',
+    'chanceToTransmitDiseaseParam': 'Transmission Chance (%)',
+    'healingTimeDiseaseParam': 'Healing Time (days)',
+    'initialChanceToHealParam': 'Initial Healing Chance (%)',
+    'initialChanceToKillParam': 'Initial Lethality (%)',
+    'chanceForAsymptomaticParam': 'Asymptomatic Chance (%)',
+    'chanceToGoOutParam': 'Chance to Go Out (%)',
+    'chanceToSelfQuarantineParam': 'Chance to Self-Quarantine (%)',
+    'agentsAtCentralLocation_atSameTimeParam': 'Agents at Central Location',
+    'maskDistributionTimeParam': 'Mask Distribution Time (days)',
+    'maskCooldownTimeParam': 'Mask Cooldown Time (days)',
+    'maskUse': 'Mask Use Enforced',
+    'vaccineDistributionTimeParam': 'Vaccine Distribution Time (days)',
+    'vaccineEnforced': 'Vaccine Enforced'
 }
 
 
