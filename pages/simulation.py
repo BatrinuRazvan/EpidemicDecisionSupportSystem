@@ -9,72 +9,73 @@ from constants import SIMULATION_LABELS
 
 dash.register_page(__name__)
 
+input_size = '70px'
+
 main_parameters = [
     html.Div([
         html.Label(SIMULATION_LABELS['numberOfAgentsParam']),
-        dcc.Input(id='numberOfAgentsParam', type='number', value=100000)
+        dcc.Input(id='numberOfAgentsParam', type='number', value=100000, style={'width': input_size})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['numberOfSickAtStartParam']),
-        dcc.Input(id='numberOfSickAtStartParam', type='number', value=100)
+        dcc.Input(id='numberOfSickAtStartParam', type='number', value=100, style={'width': input_size})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['simPeriodParam']),
-        dcc.Input(id='simPeriodParam', type='number', value=3)
+        dcc.Input(id='simPeriodParam', type='number', value=3, style={'width': input_size})
     ]),
 ]
 
-# Define input elements for the dropdown categories with labels, default values, and sliders
 disease_parameters = [
     html.Div([
         html.Label(SIMULATION_LABELS['standardIncubationTimeDiseaseParam']),
-        dcc.Input(id='standardIncubationTimeDiseaseParam', type='number', value=5)
+        dcc.Input(id='standardIncubationTimeDiseaseParam', type='number', value=6, style={'width': input_size})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['chanceToTransmitDiseaseParam']),
-        dcc.Slider(id='chanceToTransmitDiseaseParam', min=0, max=100, step=1, value=50, marks={i: str(i) for i in range(0, 101, 10)})
+        dcc.Slider(id='chanceToTransmitDiseaseParam', min=0, max=100, step=1, value=20, marks={i: str(i) for i in range(0, 101, 10)})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['healingTimeDiseaseParam']),
-        dcc.Input(id='healingTimeDiseaseParam', type='number', value=10)
+        dcc.Input(id='healingTimeDiseaseParam', type='number', value=15, style={'width': input_size})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['initialChanceToHealParam']),
-        dcc.Slider(id='initialChanceToHealParam', min=0, max=50, step=1, value=25, marks={i: str(i) for i in range(0, 51, 5)})
+        dcc.Slider(id='initialChanceToHealParam', min=0, max=50, step=1, value=0, marks={i: str(i) for i in range(0, 51, 5)})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['initialChanceToKillParam']),
-        dcc.Slider(id='initialChanceToKillParam', min=0, max=1, step=0.01, value=0.1, marks={i: str(i) for i in [0, 0.25, 0.5, 0.75, 1]})
+        dcc.Slider(id='initialChanceToKillParam', min=0, max=1, step=0.01, value=0, marks={i: str(i) for i in [0, 0.25, 0.5, 0.75, 1]})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['chanceForAsymptomaticParam']),
-        dcc.Slider(id='chanceForAsymptomaticParam', min=0, max=100, step=1, value=50, marks={i: str(i) for i in range(0, 101, 10)})
+        dcc.Slider(id='chanceForAsymptomaticParam', min=0, max=25, step=1, value=5, marks={i: str(i) for i in range(0, 101, 10)})
     ]),
 ]
 
 agent_parameters = [
     html.Div([
         html.Label(SIMULATION_LABELS['chanceToGoOutParam']),
-        dcc.Input(id='chanceToGoOutParam', type='number', value=30)
+        dcc.Slider(id='chanceToGoOutParam', min=0, max=100, step=1, value=40, marks={i: str(i) for i in range(0, 101, 10)})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['chanceToSelfQuarantineParam']),
-        dcc.Input(id='chanceToSelfQuarantineParam', type='number', value=50)
+        dcc.Slider(id='chanceToSelfQuarantineParam', min=0, max=100, step=1, value=95, marks={i: str(i) for i in range(0, 101, 10)})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['agentsAtCentralLocation_atSameTimeParam']),
-        dcc.Input(id='agentsAtCentralLocation_atSameTimeParam', type='number', value=100)
+        dcc.Input(id='agentsAtCentralLocation_atSameTimeParam', type='number', value=100, style={'width': input_size})
     ]),
 ]
 
 mask_parameters = [
     html.Div([
         html.Label(SIMULATION_LABELS['maskDistributionTimeParam']),
-        dcc.Input(id='maskDistributionTimeParam', type='number', value=7)
+        dcc.Input(id='maskDistributionTimeParam', type='number', value=45, style={'width': input_size})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['maskCooldownTimeParam']),
-        dcc.Input(id='maskCooldownTimeParam', type='number', value=14)
+        dcc.Input(id='maskCooldownTimeParam', type='number', value=25, style={'width': input_size})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['maskUse']),
@@ -85,7 +86,7 @@ mask_parameters = [
 vaccine_parameters = [
     html.Div([
         html.Label(SIMULATION_LABELS['vaccineDistributionTimeParam']),
-        dcc.Input(id='vaccineDistributionTimeParam', type='number', value=30)
+        dcc.Input(id='vaccineDistributionTimeParam', type='number', value=50, style={'width': input_size})
     ]),
     html.Div([
         html.Label(SIMULATION_LABELS['vaccineEnforced']),
@@ -126,8 +127,9 @@ layout = html.Div([
     ], style={'display': 'flex', 'align-items': 'center'}),
     html.Div(vaccine_parameters, id='vaccine-parameters', style={'display': 'none'}),
     html.Button('Analyze Simulation', id='analyze-simulation-button', n_clicks=0, style={'border-radius': '20px', 'background-color': '#007bff', 'color': 'white', 'font-size': '20px', 'margin': '10px'}),
-    html.Div(id='analysis-output'),
+    html.Div(id='analysis-output', style={'marginLeft': '1%', 'marginTop': '1%', 'fontSize': '20px'}),
 ])
+
 
 @callback(
     Output('real-time-graph', 'figure'),
@@ -146,6 +148,7 @@ def update_graph(n):
     except Exception as e:
         print(f"Error creating graph: {e}")
         return {}
+
 
 @callback(
     Output('dummy-output', 'children'),
@@ -244,6 +247,7 @@ def control_simulation_and_submit_parameters(start_clicks, reset_clicks, *args):
 
     return None, main_params_disabled, main_params_disabled, main_params_disabled
 
+
 @callback(
     Output('disease-parameters', 'style'),
     Input('toggle-disease-parameters', 'n_clicks'),
@@ -257,6 +261,7 @@ def toggle_disease_parameters(n_clicks, style):
             style['display'] = 'none'
     return style
 
+
 @callback(
     Output('agent-parameters', 'style'),
     Input('toggle-agent-parameters', 'n_clicks'),
@@ -269,6 +274,7 @@ def toggle_agent_parameters(n_clicks, style):
         else:
             style['display'] = 'none'
     return style
+
 
 @callback(
     Output('mask-parameters', 'style'),
@@ -305,34 +311,9 @@ def analyze_simulation(n_clicks):
         summarized_data = helperfunctions.fetch_and_summarize_simulation_data()
         print(summarized_data)
         if summarized_data:
-            try:
-                api_key = helperfunctions.getOpenApiKey()
-                client = openai.OpenAI(api_key=api_key)
-
-                chat_completion = client.chat.completions.create(
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": f"Analyze this summarized simulation data: {summarized_data}. "
-                                       f"Using your data, what epidemic/ pandemic that you know of does this data resemble?",
-                        }
-                    ],
-                    model="gpt-3.5-turbo",
-                )
-
-                try:
-                    analysis = chat_completion.choices[0].message.content
-                except AttributeError:
-                    print("Failed to extract analysis from the response.")
-                    analysis = "Analysis could not be performed."
-
-                return analysis
-            except Exception as e:
-                print(f"Error during OpenAI chat completion request: {e}")
-                return "An error occurred during analysis."
-        else:
-            return "No data available for analysis."
+            return helperfunctions.analyze_simulation_data(summarized_data)
     else:
         raise PreventUpdate
+
 
 dash.register_page(__name__, path='/')

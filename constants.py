@@ -40,21 +40,21 @@ COLUMN_NAME_MAPPING = {
 SIMULATION_LABELS = {
     'numberOfAgentsParam': 'Number of Agents: ',
     'numberOfSickAtStartParam': 'Number Sick at Start: ',
-    'simPeriodParam': 'Simulation Period (months)',
-    'standardIncubationTimeDiseaseParam': 'Incubation Time (days)',
-    'chanceToTransmitDiseaseParam': 'Transmission Chance (%)',
-    'healingTimeDiseaseParam': 'Healing Time (days)',
-    'initialChanceToHealParam': 'Initial Healing Chance (%)',
-    'initialChanceToKillParam': 'Initial Lethality (%)',
-    'chanceForAsymptomaticParam': 'Asymptomatic Chance (%)',
-    'chanceToGoOutParam': 'Chance to Go Out (%)',
-    'chanceToSelfQuarantineParam': 'Chance to Self-Quarantine (%)',
-    'agentsAtCentralLocation_atSameTimeParam': 'Agents at Central Location',
-    'maskDistributionTimeParam': 'Mask Distribution Time (days)',
-    'maskCooldownTimeParam': 'Mask Cooldown Time (days)',
-    'maskUse': 'Mask Use Enforced',
-    'vaccineDistributionTimeParam': 'Vaccine Distribution Time (days)',
-    'vaccineEnforced': 'Vaccine Enforced'
+    'simPeriodParam': 'Simulation Period (months): ',
+    'standardIncubationTimeDiseaseParam': 'Incubation Time (days): ',
+    'chanceToTransmitDiseaseParam': 'Transmission Chance: ',
+    'healingTimeDiseaseParam': 'Healing Time (days): ',
+    'initialChanceToHealParam': 'Initial Immunity (Probability of agents to have natural immunity to the Disease): ',
+    'initialChanceToKillParam': 'Initial Lethality (Probability of Disease to have a higher lethality): ',
+    'chanceForAsymptomaticParam': 'Asymptomatic Chance (Probability of asymptomatic agents): ',
+    'chanceToGoOutParam': 'Chance to Go Out (Probability of an agent to leave their home): ',
+    'chanceToSelfQuarantineParam': 'Chance to Self-Quarantine (Probability of agents to self-quarantine when starting to have symptoms): ',
+    'agentsAtCentralLocation_atSameTimeParam': 'Agents at a Central Location (at the same time): ',
+    'maskDistributionTimeParam': 'Mask distribution time (days): ',
+    'maskCooldownTimeParam': 'Mask removal time (days): ',
+    'maskUse': 'Mask Use Enforced: ',
+    'vaccineDistributionTimeParam': 'Vaccine distribution time (days): ',
+    'vaccineEnforced': 'Vaccine Enforced: '
 }
 
 

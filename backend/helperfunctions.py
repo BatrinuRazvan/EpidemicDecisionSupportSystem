@@ -2,6 +2,8 @@ import mysql.connector
 from decouple import config
 import pandas as pd
 import requests
+import openai
+import time
 
 API_BASE_URL = "http://localhost:8080"
 
@@ -124,3 +126,33 @@ def fetch_data_for_diagnostic(selected_table, diagnosticName):
         else:
             df = pd.DataFrame()
         return df
+
+
+def analyze_simulation_data(summarized_data):
+    api_key = getOpenApiKey()
+    client = openai.OpenAI(api_key=api_key)
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": f"Analyze this summarized simulation data: {summarized_data}. "
+                           f"Using your data, what epidemic/pandemic that you know of does this data resemble?",
+            }
+        ],
+        model="gpt-3.5-turbo",
+    )
+
+    try:
+        analysis = chat_completion.choices[0].message.content
+    except AttributeError:
+        analysis = "Analysis could not be performed."
+
+    return analysis
+
+
+def typing_effect(text, delay=0.1):
+    for char in text:
+        print(char, end='', flush=True)
+        time.sleep(delay)
+    print()
