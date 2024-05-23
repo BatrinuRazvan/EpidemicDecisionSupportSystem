@@ -34,7 +34,8 @@ COLUMN_NAME_MAPPING = {
     'CURRENT_HOSP_OCCUPANCY': 'Hospital Fill Rate',
     'CURRENT_ICU_OCCUPANCY': 'ICU Fill Rate',
     'REGISTERED': 'Cases Registered',
-    'TIMESTAMP': 'Over Time'
+    'TIMESTAMP': 'Over Time',
+    'DAY_INCREMENT': 'Over Time'
 }
 
 SIMULATION_LABELS = {

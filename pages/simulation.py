@@ -4,8 +4,7 @@ import plotly.express as px
 import requests
 from dash.exceptions import PreventUpdate
 from backend import helperfunctions
-import openai
-from constants import SIMULATION_LABELS
+from constants import *
 
 dash.register_page(__name__)
 
@@ -95,7 +94,7 @@ vaccine_parameters = [
 ]
 
 layout = html.Div([
-    html.H1('Epidemic Simulation'),
+    html.H1('Epidemic Simulation', style={'textAlign': 'center', 'fontSize': '40px', 'fontFamily': 'Arial'}),
     dcc.Graph(id='real-time-graph'),
     dcc.Interval(id='interval-component', interval=1*1000, n_intervals=0),
     html.Div([
@@ -142,8 +141,14 @@ def update_graph(n):
         return px.area()
 
     try:
-        fig = px.area(df, x='DAY_INCREMENT', y=['TOTAL_DEATHS', 'TOTAL_RECOVERED', 'DAILY_CASES', 'TOTAL_HOSPITALIZATIONS'],
-                      color_discrete_map={'TOTAL_HOSPITALIZATIONS': 'aquamarine', 'TOTAL_RECOVERED': 'green', 'TOTAL_DEATHS': 'gray', 'DAILY_CASES': 'red'})
+        available_columns = [col for col in df.columns if col not in [BY_ID, BY_DATE]]
+        df_renamed = df.rename(columns=COLUMN_NAME_MAPPING)
+
+        fig = px.area(df_renamed, x=COLUMN_NAME_MAPPING.get(BY_ID, BY_ID),
+                      y=[COLUMN_NAME_MAPPING.get(col, col) for col in available_columns])
+        fig.update_layout(legend_title_text='Metrics',
+                          xaxis_title=COLUMN_NAME_MAPPING.get(BY_ID, BY_ID))
+
         return fig
     except Exception as e:
         print(f"Error creating graph: {e}")
@@ -219,14 +224,14 @@ def control_simulation_and_submit_parameters(start_clicks, reset_clicks, *args):
 
     if 'start-simulation-button' in changed_id:
         try:
-            requests.post('http://localhost:8080/startSimulatio')
+            requests.post('http://localhost:8080/startSimulation')
             print("Simulation started successfully.")
         except requests.RequestException as e:
             print(f"Failed to start simulation: {e}")
 
     elif 'reset-simulation-button' in changed_id:
         try:
-            requests.post('http://localhost:8080/resetSimulatio')
+            requests.post('http://localhost:8080/resetSimulation')
             print("Simulation reset.")
         except requests.RequestException as e:
             print(f"Failed to reset simulation: {e}")
