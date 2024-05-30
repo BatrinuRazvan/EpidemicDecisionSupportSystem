@@ -28,6 +28,24 @@ layout = html.Div([
     dcc.Graph(id="time-series-chart")
 ], style={"fontFamily": "Arial"})
 
+
+@callback(
+    Output("pie-chart", "figure"),
+    Input("url", "pathname")  # Assuming you have dcc.Location component on your page
+)
+def update_pie_chart(pathname):
+    # Fetch the disease data
+    disease_data = helperfunctions.fetch_data_for_table('diagnostics')
+    # Convert disease data to a DataFrame
+    df_disease = pd.DataFrame(disease_data, columns=["NAME", "TOTAL"])
+    # Create the pie chart
+    fig_pie = px.pie(df_disease, names="NAME", values="TOTAL")
+    fig_pie.update_traces(textposition='inside', textinfo='percent+label')
+    fig_pie.update_layout(
+        font=dict(family="Arial", size=20),
+    )
+    return fig_pie
+
 # Callback to update symptoms and time series chart based on pie chart selection
 @callback(
     [Output("symptoms-output", "children"),
