@@ -65,7 +65,7 @@ layout = html.Div([
         'backgroundColor': '#3498db', 'cursor': 'pointer'
     }),
 
-    dcc.Graph(id='side-by-side-graph', style={'margin-top': '20px'})  # Ensure there's margin above the graph
+    dcc.Graph(id='side-by-side-graph', style={'margin-top': '20px'})
 ])
 
 @callback(
@@ -106,16 +106,14 @@ def update_column_dropdown(table1, table2):
 )
 def plot_side_by_side(table1_name, columns_table1, table2_name, columns_table2, time_range_1, time_range_2, n_clicks):
     if n_clicks is None:
-        raise PreventUpdate  # Stop execution if no button click
+        raise PreventUpdate
 
-    # Fetch data
     df_table1 = helperfunctions.fetch_data_for_table(table1_name)
     df_table2 = helperfunctions.fetch_data_for_table(table2_name)
 
     if df_table1.empty or df_table2.empty:
-        raise PreventUpdate  # Stop execution if data is empty
+        raise PreventUpdate
 
-    # Get the data ranges and create marks at reasonable intervals
     min_time_1, max_time_1 = df_table1['DAY_INCREMENT'].min(), df_table1['DAY_INCREMENT'].max()
     min_time_2, max_time_2 = df_table2['DAY_INCREMENT'].min(), df_table2['DAY_INCREMENT'].max()
 
@@ -128,15 +126,12 @@ def plot_side_by_side(table1_name, columns_table1, table2_name, columns_table2, 
     marks_time_1 = create_marks(min_time_1, max_time_1)
     marks_time_2 = create_marks(min_time_2, max_time_2)
 
-    # Slider values should be within the new marks
     valid_range_1 = [max(min_time_1, time_range_1[0]), min(max_time_1, time_range_1[1])]
     valid_range_2 = [max(min_time_2, time_range_2[0]), min(max_time_2, time_range_2[1])]
 
-    # Filter data based on the selected range
     df_table1_filtered = df_table1[df_table1['DAY_INCREMENT'].between(*valid_range_1)]
     df_table2_filtered = df_table2[df_table2['DAY_INCREMENT'].between(*valid_range_2)]
 
-    # Generate traces for the plot with mapped column names
     traces_table1 = [
         go.Scatter(
             x=df_table1_filtered['DAY_INCREMENT'],
@@ -162,5 +157,4 @@ def plot_side_by_side(table1_name, columns_table1, table2_name, columns_table2, 
 
     fig = go.Figure(data=traces_table1 + traces_table2, layout=layout)
 
-    # Return all necessary outputs
     return fig, min_time_1, max_time_1, marks_time_1, valid_range_1, min_time_2, max_time_2, marks_time_2, valid_range_2

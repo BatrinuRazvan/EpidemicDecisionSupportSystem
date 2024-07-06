@@ -9,16 +9,14 @@ from backend import helperfunctions
 from sklearn.linear_model import LinearRegression
 from constants import *
 
-# Initialize Dash app
 dash.register_page(__name__)
 
 layout = html.Div([
-    # Dropdowns for table and column selection
     html.H3("Select Incident"),
     dcc.Dropdown(
         id='table-dropdown',
         options=TABLE_OPTIONS,
-        value='covid19_tm',  # Default selected table
+        value='covid19_tm',
         style={'width': '30%'}
     ),
     html.H3("Choose what to plot"),
@@ -29,13 +27,11 @@ layout = html.Div([
         style={'width': '30%'}
     ),
 
-    # Static Plot Section
     html.Div([
         html.H1("Analysis over time", style={'textAlign': 'center'}),
         dcc.Graph(id='static-graph'),
     ]),
 
-    # Trend Graph Section
     html.Div([
         html.H1("Trend Graph", style={'textAlign': 'center'}),
         dcc.Dropdown(
@@ -46,14 +42,13 @@ layout = html.Div([
                 {'label': 'Monthly', 'value': 'M'},
                 {'label': 'Yearly', 'value': 'Y'}
             ],
-            value='D',  # Default selected time span
+            value='D',
             style={'width': '30%', 'margin-left': '13.5%'}
         ),
     ], style={'display': 'flex', 'flexDirection': 'column', 'alignItems': 'center'}),
 
     dcc.Graph(id='trend-graph'),
 
-    # Dynamic Chart Section
     html.Div([
         html.H1("Time-based Dynamic Charts", style={'textAlign': 'center'}),
         dcc.Dropdown(
@@ -73,7 +68,6 @@ layout = html.Div([
 
 ], style={'fontFamily': 'Arial, sans-serif'})
 
-# Callbacks for dynamic dropdowns and graph updates
 @callback(
     Output('column-dropdown', 'options'),
     Input('table-dropdown', 'value')
@@ -83,7 +77,6 @@ def update_column_dropdown(selected_table):
     options = [{'label': COLUMN_NAME_MAPPING.get(col, col), 'value': col} for col in columns if col not in [BY_ID, BY_DATE]]
     return options
 
-# Callback to update the static graph
 @callback(
     Output('static-graph', 'figure'),
     [Input('table-dropdown', 'value'),
@@ -111,7 +104,7 @@ def update_static_graph(selected_table, selected_columns):
         print(f"Error in plotting with selected columns {selected_columns}: {e}")
         return go.Figure()
 
-# Callback for Trend Analysis Graph
+
 @callback(
     Output('trend-graph', 'figure'),
     [Input('table-dropdown', 'value'),
@@ -142,7 +135,7 @@ def update_trend_graph(selected_table, selected_columns, time_span):
     trend_fig.update_layout(title='Trend Analysis', xaxis_title='Date', yaxis_title='Value')
     return trend_fig
 
-# Callback for Dynamic Chart
+
 @callback(
     Output('dynamic-chart', 'figure'),
     [Input('table-dropdown', 'value'),

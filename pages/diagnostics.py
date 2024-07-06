@@ -8,13 +8,10 @@ from constants import COLUMN_NAME_MAPPING
 
 dash.register_page(__name__, path='/diagnostics')
 
-# Fetch the disease data
 disease_data = helperfunctions.fetch_data_for_table('diagnostics')
 
-# Convert disease data to a DataFrame with correct column names
 df_disease = pd.DataFrame(disease_data, columns=["NAME", "TOTAL"])
 
-# Create the pie chart
 fig_pie = px.pie(df_disease, names="NAME", values="TOTAL")
 fig_pie.update_traces(textposition='inside', textinfo='percent+label')
 fig_pie.update_layout(
@@ -34,11 +31,8 @@ layout = html.Div([
     Input("url", "pathname")  # Assuming you have dcc.Location component on your page
 )
 def update_pie_chart(pathname):
-    # Fetch the disease data
     disease_data = helperfunctions.fetch_data_for_table('diagnostics')
-    # Convert disease data to a DataFrame
     df_disease = pd.DataFrame(disease_data, columns=["NAME", "TOTAL"])
-    # Create the pie chart
     fig_pie = px.pie(df_disease, names="NAME", values="TOTAL")
     fig_pie.update_traces(textposition='inside', textinfo='percent+label')
     fig_pie.update_layout(
@@ -46,7 +40,6 @@ def update_pie_chart(pathname):
     )
     return fig_pie
 
-# Callback to update symptoms and time series chart based on pie chart selection
 @callback(
     [Output("symptoms-output", "children"),
      Output("time-series-chart", "figure")],
@@ -83,7 +76,6 @@ def update_output(clickData):
         else:
             df_timestamp = pd.DataFrame(timestamp_data)
             df_timestamp['TIMESTAMP'] = pd.to_datetime(df_timestamp['TIMESTAMP'])
-            # Using COLUMN_NAME_MAPPING to replace names
             fig_time_series = px.line(df_timestamp, x="TIMESTAMP", y="REGISTERED",
                                       labels={
                                           "TIMESTAMP": COLUMN_NAME_MAPPING.get("TIMESTAMP", "Over Time"),

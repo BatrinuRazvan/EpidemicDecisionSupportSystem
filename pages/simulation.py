@@ -161,6 +161,8 @@ def update_graph(n):
     Output('numberOfSickAtStartParam', 'disabled'),
     Output('simPeriodParam', 'disabled'),
     Input('start-simulation-button', 'n_clicks'),
+    Input('pause-simulation-button', 'n_clicks'),
+    Input('resume-simulation-button', 'n_clicks'),
     Input('reset-simulation-button', 'n_clicks'),
     Input('numberOfAgentsParam', 'value'),
     Input('numberOfSickAtStartParam', 'value'),
@@ -180,15 +182,11 @@ def update_graph(n):
     Input('vaccineDistributionTimeParam', 'value'),
     Input('vaccineEnforced', 'value')
 )
-def control_simulation_and_submit_parameters(start_clicks, reset_clicks, *args):
+def control_simulation_and_submit_parameters(start_clicks, pause_clicks, resume_clicks, reset_clicks, *args):
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     param_values = list(args)
 
-    main_params_disabled = False
-    if 'start-simulation-button' in changed_id:
-        main_params_disabled = True
-    elif 'reset-simulation-button' in changed_id:
-        main_params_disabled = False
+    disable_main_params = 'start-simulation-button' in changed_id
 
     parameter_values = {
         'numberOfAgentsParam': param_values[0],
@@ -250,7 +248,7 @@ def control_simulation_and_submit_parameters(start_clicks, reset_clicks, *args):
         except requests.RequestException as e:
             print(f"Failed to resume simulation: {e}")
 
-    return None, main_params_disabled, main_params_disabled, main_params_disabled
+    return None, disable_main_params, disable_main_params, disable_main_params
 
 
 @callback(
@@ -293,6 +291,7 @@ def toggle_mask_parameters(n_clicks, style):
         else:
             style['display'] = 'none'
     return style
+
 
 @callback(
     Output('vaccine-parameters', 'style'),

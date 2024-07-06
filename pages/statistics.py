@@ -7,7 +7,6 @@ import pandas as pd
 
 dash.register_page(__name__)
 
-# Fetch data once to determine available columns
 df = helperfunctions.fetch_data_for_simulation()
 available_columns = [col for col in df.columns if col not in [BY_ID, BY_DATE]]
 mapped_columns = {col: COLUMN_NAME_MAPPING.get(col, col) for col in available_columns}
@@ -52,13 +51,16 @@ layout = html.Div([
 
 selected_areas = []
 
+
 def update_selected_areas(button_id):
     selected_area = button_id.replace('btn-', '').upper()
     if selected_area not in selected_areas:
         selected_areas.append(selected_area)
 
+
 def clear_all():
     selected_areas.clear()
+
 
 @callback(
     [Output(f"btn-{stat.lower()}", 'style') for stat in mapped_columns] +
@@ -79,18 +81,16 @@ def update_dashboard(*args):
     button_styles = [
         {'background-color': 'blue', 'border-radius': '20px', 'color': 'white',
          'padding': '10px 20px', 'font-size': '16px', 'margin': '5px'} for _ in mapped_columns
-    ]  # Default styles for all buttons
+    ]
 
     button_id = ''
-    latest_click = -1  # Initialize as a large negative number
+    latest_click = -1
 
-    # Filter out non-timestamp inputs
     timestamp_inputs = {key: value for key, value in inputs.items() if 'n_clicks_timestamp' in key and value is not None}
 
-    # Find the button that was last clicked
     for inp_id, timestamp in timestamp_inputs.items():
         if timestamp:
-            current_timestamp = int(timestamp)  # Convert timestamp safely
+            current_timestamp = int(timestamp)
             if latest_click < current_timestamp:
                 latest_click = current_timestamp
                 button_id = inp_id.split('.')[0]
@@ -103,14 +103,13 @@ def update_dashboard(*args):
         update_selected_areas(button_id)
         index = [f"btn-{stat.lower()}" for stat in mapped_columns].index(button_id)
         button_styles[index] = {'background-color': 'orange', 'border-radius': '20px', 'color': 'white',
-                                'padding': '10px 20px', 'font-size': '16px', 'margin': '5px'}  # Change style for clicked button
+                                'padding': '10px 20px', 'font-size': '16px', 'margin': '5px'}
 
     df = helperfunctions.fetch_data_for_simulation()
     if df is None or df.empty:
         print("No data retrieved from the database.")
         return [*button_styles, go.Figure()]
 
-    # Resample data based on selected statistic display
     if statistic_display == 'daily':
         df['INTERVAL'] = df[BY_ID]
     elif statistic_display == 'weekly':
@@ -120,7 +119,6 @@ def update_dashboard(*args):
     elif statistic_display == 'yearly':
         df['INTERVAL'] = df[BY_ID] // 365
 
-    # Filter out non-numeric columns before aggregation
     numeric_df = df.select_dtypes(include='number')
 
     df_resampled = numeric_df.groupby('INTERVAL').sum().reset_index()

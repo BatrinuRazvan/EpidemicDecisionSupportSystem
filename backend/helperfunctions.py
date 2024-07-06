@@ -65,14 +65,13 @@ def fetch_data_for_table(selected_table):
 
 
 def post_message(city, title, gravity, range_km, description, color):
-    # Your existing code to post the message, modified to include 'color'
     data = {
         "city": city,
         "title": title,
-        "severity": gravity,  # Assuming 'gravity' is used as 'severity'
+        "severity": gravity,
         "range": range_km,
         "description": description,
-        "color": color  # Include the color in the data sent to the server
+        "color": color
     }
     requests.post(f'{API_BASE_URL}/messages/addNotification', json=data)
 
@@ -98,7 +97,6 @@ def fetch_and_summarize_simulation_data():
     if response.status_code == 200:
         data = response.json()
         df = pd.DataFrame(data)
-        # Sample or summarize your data here. As an example, we'll randomly select 100 entries if the data is large.
         if len(df) > 100:
             df_sampled = df.sample(n=100)
         else:

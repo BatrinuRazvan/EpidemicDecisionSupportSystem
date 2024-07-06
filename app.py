@@ -3,7 +3,6 @@ from dash import Dash, html, dcc
 
 app = Dash(__name__, use_pages=True)
 
-# Define some CSS styles for the navbar
 navbar_style = {
     'display': 'flex',
     'justifyContent': 'space-around',
@@ -19,12 +18,12 @@ link_style = {
     'color': 'white',
     'fontSize': '30px',
     'margin': '0 15px',
-    'position': 'relative',  # Needed for pseudo-elements
+    'position': 'relative',
     'padding': '0 5px'
 }
 
 app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),  # This component captures and stores the URL
+    dcc.Location(id='url', refresh=False),
     html.H1('Disaster Decision Support System', style={'textAlign': 'center'}),
 
     # Navbar
@@ -35,11 +34,9 @@ app.layout = html.Div([
         ], style=navbar_style)
     ]),
 
-    # Page content
     dash.page_container
 ])
 
-# Adding CSS for vertical lines and active link indication
 app.clientside_callback(
     """
     function(href) {
@@ -63,7 +60,6 @@ app.clientside_callback(
     inputs=[dash.Input('url', 'href')]
 )
 
-# Ensure 'dummy-div' exists or remove the output if not used
 app.layout.children.append(html.Div(id='dummy-div', style={'display': 'none'}))
 
 if __name__ == '__main__':
